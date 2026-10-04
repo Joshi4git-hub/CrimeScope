@@ -73,22 +73,6 @@ python app.py
 ```
 Open your browser and navigate to: **`http://127.0.0.1:8050`**
 
----
-
-## 📸 Screenshots
-
-| View | Preview |
-| :--- | :--- |
-| **Overview Page** | ![Overview](docs/screenshots/overview.png) |
-| **Trends Analysis** | ![Trends](docs/screenshots/trends.png) |
-| **Chicago Map** | ![Map](docs/screenshots/map.png) |
-| **Police Districts** | ![Districts](docs/screenshots/districts.png) |
-| **ML Risk Prediction** | ![Prediction](docs/screenshots/prediction.png) |
-| **Model Comparison** | ![Model Comparison](docs/screenshots/model_comparison.png) |
-| **About & Data** | ![About & Data](docs/screenshots/about.png) |
-
----
-
 ## 🤖 Machine Learning Model Benchmarks
 
 | Model Architecture | Accuracy | Weighted Precision | Weighted Recall | Weighted F1 | Train Time (s) |
