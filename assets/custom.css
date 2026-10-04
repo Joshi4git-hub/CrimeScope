@@ -1,0 +1,634 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Global Reset & Base Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0B0B0B !important;
+    color: #F2F2F2 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0B0B0B;
+}
+::-webkit-scrollbar-thumb {
+    background: #262626;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #FF5A1F;
+}
+
+/* App Container Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #0B0B0B;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px;
+    background-color: #141414;
+    border-right: 1px solid #262626;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-left: 8px;
+}
+
+.sidebar-logo {
+    width: 36px;
+    height: 36px;
+}
+
+.sidebar-brand-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #F2F2F2;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+.sidebar-brand-title span {
+    color: #FF5A1F;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-item-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: #8A8A8A;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-item-link:hover {
+    background-color: rgba(255, 90, 31, 0.08);
+    color: #F2F2F2;
+}
+
+.nav-item-link.active {
+    background-color: rgba(255, 90, 31, 0.15);
+    color: #FF5A1F;
+    font-weight: 600;
+    border-left: 3px solid #FF5A1F;
+}
+
+.nav-item-link i {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    padding: 32px 40px;
+    overflow-y: auto;
+    max-width: 1600px;
+}
+
+/* Header Component */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+}
+
+.section-label {
+    text-transform: uppercase;
+    color: #FF5A1F;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #F2F2F2;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #8A8A8A;
+    margin: 0;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Card Styling */
+.cs-card {
+    background-color: #141414;
+    border: 1px solid #262626;
+    border-radius: 14px;
+    padding: 24px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.cs-card:hover {
+    border-color: rgba(255, 90, 31, 0.4);
+    box-shadow: 0 0 20px rgba(255, 90, 31, 0.08);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8A8A8A;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+}
+
+.card-kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #F2F2F2;
+    letter-spacing: -0.5px;
+}
+
+/* Badges */
+.badge-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-delta-up {
+    background-color: rgba(255, 90, 31, 0.15);
+    color: #FF5A1F;
+    border: 1px solid rgba(255, 90, 31, 0.3);
+}
+
+.badge-delta-down {
+    background-color: rgba(0, 230, 118, 0.15);
+    color: #00E676;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+.badge-neutral {
+    background-color: rgba(255, 194, 61, 0.15);
+    color: #FFC23D;
+    border: 1px solid rgba(255, 194, 61, 0.3);
+}
+
+/* Insight Banner */
+.insight-banner {
+    background: linear-gradient(135deg, rgba(255, 90, 31, 0.1) 0%, rgba(20, 20, 20, 0.9) 100%);
+    border: 1px solid rgba(255, 90, 31, 0.3);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.insight-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: #F2F2F2;
+}
+
+/* Custom Buttons */
+.btn-cs-primary {
+    background-color: #FF5A1F;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cs-primary:hover {
+    background-color: #FF743E;
+    box-shadow: 0 0 15px rgba(255, 90, 31, 0.4);
+}
+
+.btn-cs-secondary {
+    background-color: #141414;
+    color: #F2F2F2;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cs-secondary:hover {
+    border-color: #FF5A1F;
+    color: #FF5A1F;
+}
+
+/* Dark Offcanvas Filter Panel */
+.offcanvas {
+    background-color: #141414 !important;
+    color: #F2F2F2 !important;
+    border-left: 1px solid #262626 !important;
+}
+
+.offcanvas-header {
+    border-bottom: 1px solid #262626;
+}
+
+.offcanvas-title {
+    color: #F2F2F2;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   PLOTLY JS & CANVAS DARK THEME OVERRIDE (ELIMINATES WHITE GRAPH CANVAS)
+   ========================================================================== */
+.js-plotly-plot,
+.js-plotly-plot .plotly,
+.js-plotly-plot .plot-container,
+.js-plotly-plot .svg-container,
+.dash-graph,
+.dash-graph * {
+    background-color: #141414 !important;
+    background: #141414 !important;
+}
+
+.js-plotly-plot .main-svg {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+.js-plotly-plot .modebar-container {
+    background-color: transparent !important;
+}
+
+/* ==========================================================================
+   COMPLETE DARK THEME FOR ALL DROPDOWNS & SEARCH INPUTS
+   ========================================================================== */
+
+/* Main Dropdown Container Box */
+.dash-dropdown,
+button.dash-dropdown,
+.dash-dropdown-trigger,
+.dash-dropdown .Select-control,
+.dash-dropdown div[class*="-control"],
+.Select-control,
+div[class*="-control"] {
+    background-color: #141414 !important;
+    background: #141414 !important;
+    border: 1px solid #262626 !important;
+    border-radius: 8px !important;
+    color: #F2F2F2 !important;
+    min-height: 42px !important;
+    box-shadow: none !important;
+}
+
+.dash-dropdown:hover,
+button.dash-dropdown:hover,
+div[class*="-control"]:hover {
+    border-color: #FF5A1F !important;
+}
+
+/* Selected Text Label in Dropdown (Crisp Bright White Text) */
+.dash-dropdown-value,
+.dash-dropdown-value-item,
+.dash-dropdown-value-item span,
+.dash-dropdown div[class*="-singleValue"],
+.dash-dropdown div[class*="-singleValue"] *,
+.dash-dropdown div[class*="-ValueContainer"] *,
+.dash-dropdown input,
+.Select-value-label,
+div[class*="-singleValue"],
+div[class*="-singleValue"] * {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+}
+
+/* Opened Dropdown Menu Popup Overlay */
+.dash-dropdown-content,
+div[class*="dash-dropdown-content"],
+div[data-radix-popper-content-wrapper] > div,
+.dash-dropdown div[class*="-menu"],
+.Select-menu-outer,
+.Select-menu,
+div[class*="-menu"],
+div[class*="-MenuList"] {
+    background-color: #141414 !important;
+    background: #141414 !important;
+    border: 1px solid #262626 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.95) !important;
+    z-index: 99999 !important;
+    padding: 8px !important;
+}
+
+/* Dropdown Search Box (ELIMINATES WHITE SEARCH BOX) */
+.dash-dropdown-search-container,
+.dash-dropdown-search-container *,
+div[class*="dash-dropdown-search"] {
+    background-color: #0B0B0B !important;
+    background: #0B0B0B !important;
+    border-color: #262626 !important;
+}
+
+.dash-dropdown-search-container input,
+input.dash-dropdown-search-input,
+.dash-dropdown-content input,
+.dash-dropdown input[type="text"],
+div[class*="-Input"] input,
+div[class*="-menu"] input,
+input.Select-input {
+    background-color: #0B0B0B !important;
+    background: #0B0B0B !important;
+    color: #FFFFFF !important;
+    border: 1px solid #262626 !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.dash-dropdown-search-container input:focus,
+.dash-dropdown-content input:focus {
+    border-color: #FF5A1F !important;
+    outline: none !important;
+}
+
+.dash-dropdown-search-icon {
+    color: #8A8A8A !important;
+    fill: #8A8A8A !important;
+}
+
+/* Dropdown List Options (CRISP BOLD WHITE TEXT, NOT DARK PURPLE!) */
+.dash-dropdown-content [role="option"],
+.dash-dropdown-content div[class*="item"],
+.dash-dropdown-content div[class*="option"],
+div[class*="dash-dropdown-item"],
+div[data-radix-collection-item],
+[role="option"],
+.dash-dropdown div[class*="-option"],
+.Select-option,
+div[class*="-option"] {
+    background-color: #141414 !important;
+    background: #141414 !important;
+    color: #F2F2F2 !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+.dash-dropdown-content [role="option"] span,
+.dash-dropdown-content div[class*="item"] span,
+div[class*="dash-dropdown-item"] span,
+[role="option"] span {
+    color: #F2F2F2 !important;
+    font-weight: 600 !important;
+}
+
+/* Hovered / Focused Option */
+.dash-dropdown-content [role="option"]:hover,
+.dash-dropdown-content [role="option"][data-highlighted],
+.dash-dropdown-content [role="option"][data-state="checked"],
+div[class*="dash-dropdown-item"]:hover,
+[role="option"]:hover,
+[role="option"][data-highlighted],
+.dash-dropdown div[class*="-option"]:hover,
+.dash-dropdown div[class*="-option"][class*="is-focused"],
+div[class*="-option"]:hover,
+div[class*="-option"][class*="is-focused"] {
+    background-color: rgba(255, 90, 31, 0.25) !important;
+    background: rgba(255, 90, 31, 0.25) !important;
+    color: #FF5A1F !important;
+    font-weight: 700 !important;
+}
+
+.dash-dropdown-content [role="option"]:hover span,
+.dash-dropdown-content [role="option"][data-highlighted] span,
+[role="option"]:hover span,
+[role="option"][data-highlighted] span {
+    color: #FF5A1F !important;
+    font-weight: 700 !important;
+}
+
+/* Selected Option */
+.dash-dropdown-content [role="option"][data-state="checked"],
+[role="option"][aria-selected="true"],
+.dash-dropdown div[class*="-option"][class*="is-selected"],
+div[class*="-option"][class*="is-selected"] {
+    background-color: #FF5A1F !important;
+    background: #FF5A1F !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+.dash-dropdown-content [role="option"][data-state="checked"] span,
+[role="option"][aria-selected="true"] span {
+    color: #FFFFFF !important;
+}
+
+/* Multi-select Tags / Value Pills */
+div[class*="-multiValue"] {
+    background-color: rgba(255, 90, 31, 0.2) !important;
+    border: 1px solid rgba(255, 90, 31, 0.4) !important;
+    border-radius: 6px !important;
+}
+
+div[class*="-multiValue__label"] {
+    color: #F2F2F2 !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   DASH 4.4 RADIX SLIDER & INPUT DARK THEME OVERRIDES (CRITICAL FIX)
+   ========================================================================== */
+
+/* 1. HIDE THE WHITE SIDE INPUT NUMBER BOX */
+.dash-slider-container input,
+.dash-input-container,
+.dash-range-slider-input,
+.dash-range-slider-max-input,
+.dash-range-slider-min-input,
+input.dash-input-container,
+div.dash-slider-container > input {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+/* 2. HIDE THE WHITE FLOATING TOOLTIP BOX UNDER THE KNOB */
+.dash-slider-tooltip,
+.dash-slider-tooltip *,
+div[id*="-tooltip-"],
+div[id*="-tooltip-"] *,
+.rc-slider-tooltip,
+.rc-slider-tooltip *,
+.rc-slider-tooltip-inner {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+/* 3. SLIDER TRACK & THUMB KNOB STYLING */
+.dash-slider-track {
+    background-color: #262626 !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
+
+.dash-slider-range {
+    background: linear-gradient(90deg, #FF5A1F, #FF9A3D) !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
+
+.dash-slider-thumb {
+    border: 2px solid #FF5A1F !important;
+    background-color: #141414 !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 10px rgba(255, 90, 31, 0.6) !important;
+    cursor: pointer !important;
+}
+
+.dash-slider-thumb:hover,
+.dash-slider-thumb:focus {
+    border-color: #FF9A3D !important;
+    box-shadow: 0 0 15px rgba(255, 154, 61, 0.9) !important;
+    outline: none !important;
+}
+
+/* 4. MARK LABELS (00:00, 04:00, etc.) */
+.dash-slider-mark {
+    color: #D0D0D0 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    font-family: 'Inter', sans-serif !important;
+    margin-top: 8px !important;
+}
+
+.dash-slider-mark-outside-selection {
+    color: #8A8A8A !important;
+}
+
+/* Table Styling */
+.cs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cs-table th {
+    background-color: #0B0B0B;
+    color: #8A8A8A;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #262626;
+}
+
+.cs-table td {
+    padding: 14px 16px;
+    color: #F2F2F2;
+    font-size: 13px;
+    border-bottom: 1px solid #1E1E1E;
+}
+
+.cs-table tr:hover td {
+    background-color: rgba(255, 90, 31, 0.05);
+}
+
+.cs-progress-bar-bg {
+    background-color: #262626;
+    border-radius: 4px;
+    height: 6px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.cs-progress-bar-fill {
+    background: linear-gradient(90deg, #FF5A1F, #FFC23D);
+    height: 100%;
+    border-radius: 4px;
+}
