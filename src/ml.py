@@ -75,13 +75,13 @@ def train_and_eval_models(df=None, force_retrain=False):
     
     models = {
         "RandomForest": RandomForestClassifier(
-            n_estimators=100, max_depth=16, random_state=42, class_weight="balanced", n_jobs=-1
+            n_estimators=30, max_depth=10, min_samples_leaf=4, random_state=42, class_weight="balanced", n_jobs=-1
         ),
         "LogisticRegression": LogisticRegression(
             max_iter=1000, random_state=42, class_weight="balanced"
         ),
         "DecisionTree": DecisionTreeClassifier(
-            max_depth=14, random_state=42, class_weight="balanced"
+            max_depth=10, random_state=42, class_weight="balanced"
         )
     }
     
