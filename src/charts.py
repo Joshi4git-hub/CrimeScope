@@ -16,13 +16,14 @@ def apply_dark_theme(fig, title="", xaxis_title=None, yaxis_title=None, height=N
         plot_bgcolor="#141414",
         font=dict(family="Inter, sans-serif", color=COLOR_TEXT_MAIN, size=12),
         title=dict(text=title, font=dict(color=COLOR_TEXT_MAIN, size=16), x=0.01, xanchor="left") if title else None,
-        margin=margin or dict(l=50, r=30, t=40, b=40)
+        margin=margin or dict(l=50, r=30, t=40, b=65)
     )
     if height:
         fig.update_layout(height=height)
         
     fig.update_xaxes(
         title_text=xaxis_title,
+        title_standoff=18,
         gridcolor=COLOR_BORDER,
         zerolinecolor=COLOR_BORDER,
         tickfont=dict(color=COLOR_TEXT_MUTED, size=11),
@@ -198,7 +199,7 @@ def build_hour_day_heatmap(df):
         colorbar=dict(title=dict(text="Incidents", font=dict(color=COLOR_TEXT_MAIN)), tickfont=dict(color=COLOR_TEXT_MUTED))
     ))
     
-    return apply_dark_theme(fig, title="Crime Frequency Heatmap (Hour × Day of Week)", xaxis_title="Hour of Day (Chicago Time - CT)", yaxis_title="Day of Week", margin=dict(l=60, r=20, t=40, b=40))
+    return apply_dark_theme(fig, title="Crime Frequency Heatmap (Hour × Day of Week)", xaxis_title="Hour of Day (Chicago Time - CT)", yaxis_title="Day of Week", margin=dict(l=60, r=20, t=40, b=65))
 
 # --- TRENDS PAGE CHARTS ---
 
@@ -278,7 +279,7 @@ def build_hourly_profile_chart(df):
         fillcolor="rgba(255, 90, 31, 0.2)",
         hovertemplate="Time: <b>%{x}</b><br>Count: <b>%{y:,}</b><extra></extra>"
     ))
-    return apply_dark_theme(fig, title="24-Hour Crime Profile", xaxis_title="Hour of Day (Chicago Time - CT)", yaxis_title="Total Incidents")
+    return apply_dark_theme(fig, title="24-Hour Crime Profile", xaxis_title="Hour of Day (Chicago Time - CT)", yaxis_title="Total Incidents", margin=dict(l=50, r=30, t=40, b=65))
 
 # --- MAP PAGE CHARTS ---
 

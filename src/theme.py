@@ -46,7 +46,7 @@ def register_crimescope_template():
             gridcolor=COLOR_GRID,
             zerolinecolor=COLOR_GRID,
             tickfont=dict(color=COLOR_TEXT_MUTED, size=11),
-            title=dict(font=dict(color=COLOR_TEXT_MAIN, size=12)),
+            title=dict(font=dict(color=COLOR_TEXT_MAIN, size=12), standoff=18),
             showline=True,
             linecolor=COLOR_BORDER
         ),
@@ -75,7 +75,7 @@ def register_crimescope_template():
             bordercolor=COLOR_PRIMARY,
             font=dict(color=COLOR_TEXT_MAIN, family="Inter", size=12)
         ),
-        margin=dict(l=40, r=30, t=40, b=40)
+        margin=dict(l=40, r=30, t=40, b=65)
     )
     
     pio.templates["crimescope_dark"] = template
