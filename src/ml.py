@@ -16,7 +16,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.data_prep import get_processed_data
 
-MODEL_DIR = "models"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 MODEL_FILES = {
     "RandomForest": os.path.join(MODEL_DIR, "random_forest.joblib"),
     "LogisticRegression": os.path.join(MODEL_DIR, "logistic_regression.joblib"),

@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import numpy as np
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_RAW_PATH = os.path.join(BASE_DIR, "data", "raw", "crimes.csv")
+DEFAULT_PROCESSED_PATH = os.path.join(BASE_DIR, "data", "processed", "crimes_cleaned.parquet")
+
 # Global in-memory cache for ultra-fast callback filtering
 _CACHED_DF = None
 _PROCESSING_STATS = {}
@@ -16,13 +20,18 @@ def get_season(month):
     else:
         return "Fall"
 
-def clean_and_process_data(raw_path="data/raw/crimes.csv", processed_path="data/processed/crimes_cleaned.parquet"):
+def clean_and_process_data(raw_path=None, processed_path=None):
     """
     Cleans raw Chicago Crime data, derives temporal features, standardizes types,
     groups rare crime categories into 'OTHER', and caches output.
     """
     global _CACHED_DF, _PROCESSING_STATS
     
+    if raw_path is None:
+        raw_path = DEFAULT_RAW_PATH
+    if processed_path is None:
+        processed_path = DEFAULT_PROCESSED_PATH
+
     logs = []
     logs.append(f"Starting data preprocessing on: {raw_path}")
     
@@ -128,11 +137,16 @@ def clean_and_process_data(raw_path="data/raw/crimes.csv", processed_path="data/
     _CACHED_DF = df
     return df
 
-def get_processed_data(force_reload=False, raw_path="data/raw/crimes.csv", processed_path="data/processed/crimes_cleaned.parquet"):
+def get_processed_data(force_reload=False, raw_path=None, processed_path=None):
     """
     Returns cached DataFrame in memory for sub-second filter performance.
     """
     global _CACHED_DF
+    if raw_path is None:
+        raw_path = DEFAULT_RAW_PATH
+    if processed_path is None:
+        processed_path = DEFAULT_PROCESSED_PATH
+
     if _CACHED_DF is not None and not force_reload:
         return _CACHED_DF
         
