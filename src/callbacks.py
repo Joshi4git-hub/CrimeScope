@@ -445,21 +445,27 @@ def register_callbacks(app):
         metrics = train_and_eval_models()
         
         # Build benchmark comparison table
+        DISPLAY_NAMES = {
+            "RandomForest": "Random Forest",
+            "LogisticRegression": "Logistic Regression",
+            "DecisionTree": "Decision Tree"
+        }
         table_rows = []
         for m_name, m_data in metrics.items():
+            display_name = DISPLAY_NAMES.get(m_name, m_name)
             table_rows.append(html.Tr([
-                html.Td(m_name, style={"fontWeight": "700", "color": "#F2F2F2"}),
+                html.Td(display_name, style={"fontWeight": "700", "color": "#F2F2F2"}),
                 html.Td(f"{m_data['accuracy']*100:.2f}%"),
                 html.Td(f"{m_data['precision']*100:.2f}%"),
                 html.Td(f"{m_data['recall']*100:.2f}%"),
                 html.Td(f"{m_data['f1_score']*100:.2f}%"),
-                html.Td(f"{m_data['train_time']}s")
+                html.Td(f"{m_data['train_time']} s")
             ]))
             
         benchmark_table = html.Table(
             [
                 html.Thead(html.Tr([
-                    html.Th("Model Architecture"), html.Th("Accuracy"), html.Th("Weighted Precision"),
+                    html.Th("Model"), html.Th("Accuracy"), html.Th("Weighted Precision"),
                     html.Th("Weighted Recall"), html.Th("Weighted F1"), html.Th("Train Time")
                 ])),
                 html.Tbody(table_rows)

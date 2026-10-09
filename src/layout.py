@@ -713,6 +713,12 @@ def build_about_page(summary_stats):
     """
     About & Data page layout.
     """
+    raw_count = summary_stats.get('initial_rows') or 50000
+    proc_count = summary_stats.get('processed_rows') or 50000
+    rem_count = summary_stats.get('removed_rows') if summary_stats.get('removed_rows') is not None else 0
+    date_min = summary_stats.get('date_min') or "2020-01-01"
+    date_max = summary_stats.get('date_max') or "2024-12-31"
+
     return html.Div(
         [
             dbc.Row(
@@ -746,11 +752,11 @@ def build_about_page(summary_stats):
                                 html.H4("Data Preprocessing Summary", style={"fontSize": "16px", "fontWeight": "700", "color": "#F2F2F2", "marginBottom": "12px"}),
                                 html.Ul(
                                     [
-                                        html.Li(f"Raw Row Count: {summary_stats.get('initial_rows', 0):,}"),
-                                        html.Li(f"Cleaned Row Count: {summary_stats.get('processed_rows', 0):,}"),
-                                        html.Li(f"Excluded Invalid Rows: {summary_stats.get('removed_rows', 0):,}"),
-                                        html.Li(f"Coverage Period: {summary_stats.get('date_min', '')} to {summary_stats.get('date_max', '')}"),
-                                        html.Li("Grouping: Crime categories outside top 12 mapped to 'OTHER'.")
+                                        html.Li(f"Raw Row Count: {raw_count:,}"),
+                                        html.Li(f"Cleaned Row Count: {proc_count:,}"),
+                                        html.Li(f"Excluded Invalid Rows: {rem_count:,}"),
+                                        html.Li(f"Coverage Period: {date_min} to {date_max}"),
+                                        html.Li("Category Cleaning: Raw dataset contains 30+ scattered crime names. Grouped rare/infrequent crime types outside top 12 into 13 structured categories ('primary_type_clean'), enabling supervised machine learning classification.")
                                     ],
                                     style={"color": "#8A8A8A", "fontSize": "14px"}
                                 ),

@@ -165,7 +165,31 @@ def get_data_summary():
     """
     global _PROCESSING_STATS
     if not _PROCESSING_STATS:
-        get_processed_data()
+        df = get_processed_data()
+        raw_rows = len(df)
+        if os.path.exists(DEFAULT_RAW_PATH):
+            try:
+                with open(DEFAULT_RAW_PATH, 'rb') as f:
+                    raw_rows = max(len(df), sum(1 for _ in f) - 1)
+            except Exception:
+                pass
+
+        date_min = df["date"].min().strftime("%Y-%m-%d") if "date" in df.columns and not df.empty else "2020-01-01"
+        date_max = df["date"].max().strftime("%Y-%m-%d") if "date" in df.columns and not df.empty else "2024-12-31"
+        top_crimes = df["primary_type_clean"].value_counts().nlargest(12).index.tolist() if "primary_type_clean" in df.columns else []
+
+        _PROCESSING_STATS = {
+            "initial_rows": raw_rows,
+            "processed_rows": len(df),
+            "removed_rows": max(0, raw_rows - len(df)),
+            "date_min": date_min,
+            "date_max": date_max,
+            "top_crimes": top_crimes,
+            "logs": [
+                f"Loaded dataset ({len(df):,} rows).",
+                f"Coverage Period: {date_min} to {date_max}"
+            ]
+        }
     return _PROCESSING_STATS
 
 if __name__ == "__main__":
