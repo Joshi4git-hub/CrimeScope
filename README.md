@@ -1,14 +1,14 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🔰 CrimeScope — Chicago Crime Analytics & Prediction Dashboard
 
-**A multi-page, interactive, dark-themed analytics dashboard for exploring, visualizing, and predicting crime patterns across Chicago using real police data and supervised machine learning.**
+**A multi-page, interactive, dark-themed dashboard for exploring Chicago crime records, with an experimental supervised-learning classifier.**
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![Dash](https://img.shields.io/badge/Dash-2.14+-00ADD8?logo=plotly&logoColor=white)](https://dash.plotly.com)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org)
 [![Plotly](https://img.shields.io/badge/Plotly-5.18+-3F4F75?logo=plotly&logoColor=white)](https://plotly.com)
-[![Deploy](https://img.shields.io/badge/Vercel-Ready-000000?logo=vercel&logoColor=white)](https://vercel.com)
+[![Deploy](https://img.shields.io/badge/Vercel-configured-000000?logo=vercel&logoColor=white)](https://vercel.com)
 
 </div>
 
@@ -26,7 +26,7 @@
 - [Environment Variables and Configuration Reference](#environment-variables-and-configuration-reference)
 - [Detailed Module-by-Module Implementation](#detailed-module-by-module-implementation)
   - [app.py — Application Entry Point](#apppy--application-entry-point)
-  - [src/data_prep.py — Data Preprocessing Engine](#srcdataprepy--data-preprocessing-engine)
+  - [src/data_prep.py — Data Preprocessing Engine](#srcdatapreppy--data-preprocessing-engine)
   - [src/layout.py — UI Layout Builder](#srclayoutpy--ui-layout-builder)
   - [src/callbacks.py — Callback Logic Controller](#srccallbackspy--callback-logic-controller)
   - [src/charts.py — Plotly Chart Factory](#srcchartspy--plotly-chart-factory)
@@ -37,6 +37,7 @@
   - [api/index.py — Vercel Serverless Entry Point](#apiindexpy--vercel-serverless-entry-point)
 - [Complete Application Workflow](#complete-application-workflow)
 - [Data Flow and Data Processing](#data-flow-and-data-processing)
+- [API and Data Storage](#api-and-data-storage)
 - [Machine Learning and AI Implementation](#machine-learning-and-ai-implementation)
   - [Problem Statement](#problem-statement)
   - [Models and Algorithms](#models-and-algorithms)
@@ -58,6 +59,7 @@
 - [Error Handling and Troubleshooting](#error-handling-and-troubleshooting)
 - [Performance, Scalability, and Limitations](#performance-scalability-and-limitations)
 - [Privacy, Data Handling, and Responsible Use](#privacy-data-handling-and-responsible-use)
+- [Authentication and Security](#authentication-and-security)
 - [Contribution Guidelines](#contribution-guidelines)
 - [How to Recreate the Entire Project From Scratch](#how-to-recreate-the-entire-project-from-scratch)
 - [Future Enhancements and Roadmap](#future-enhancements-and-roadmap)
@@ -70,7 +72,7 @@
 
 ### What Is CrimeScope?
 
-**CrimeScope** is a full-featured, multi-page analytical dashboard that lets users interactively explore, filter, visualize, and predict crime patterns across the City of Chicago. It is built entirely in Python using the Dash framework, Plotly for rich data visualizations, and scikit-learn for supervised machine learning.
+**CrimeScope** is a Python/Dash dashboard for exploring and visualizing Chicago crime records, with an experimental supervised-learning classifier that estimates a crime category from selected time and location features. Plotly generates the charts and maps; Pandas handles tabular data; scikit-learn supplies the classifiers.
 
 ### The Problem
 
@@ -78,13 +80,13 @@ Chicago publishes millions of crime incident records through the [City of Chicag
 
 ### The Solution
 
-CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a polished, interactive, dark-themed dashboard with:
+CrimeScope loads a CSV dataset of Chicago crime reports, derives time and category fields, and presents an interactive dark-themed dashboard with:
 
 - **7 dedicated analytical pages** (Overview, Trends, Map, Districts, Prediction, Model Comparison, About & Data).
-- **Global filtering** by crime category, police district, year range, arrest status, and domestic flag — applied across all visualizations.
-- **Geospatial mapping** with heatmap, scatter-point, and district-bubble views on an interactive Mapbox map.
+- **Global filtering** by crime category, police district, year range, arrest status, and domestic flag — applied to Overview, Trends, Map, and Districts.
+- **Geospatial mapping** with heatmap, sampled point, and district-bubble views on a Plotly map using CARTO tiles.
 - **Supervised machine learning** with three classification models (Random Forest, Logistic Regression, Decision Tree) for crime category prediction.
-- **Model evaluation** with confusion matrices, feature importance charts, and benchmark metric tables.
+- **Model comparison UI** with confusion matrices, an intended feature-importance chart, and a benchmark metric table.
 - **Live Chicago clock** reflecting Central Time.
 - **CSV export** of filtered data.
 
@@ -97,7 +99,7 @@ CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a p
 
 ### Current Development Status
 
-**Fully implemented and functional.** All 7 pages, global filters, ML prediction, model comparison, and CSV export are operational. The project includes Vercel deployment configuration for serverless hosting.
+The repository contains seven Dash page layouts, filtering callbacks, CSV export, model inference code, stored model artifacts, and Vercel configuration. There is no automated test suite or CI support matrix in the repository, and the app/deployment have not been verified by this documentation update. In particular, the current model-training path references an undefined `feature_importances` variable; see [Machine Learning](#machine-learning-and-ai-implementation) and [Troubleshooting](#error-handling-and-troubleshooting). Treat retraining and deployment as unverified until that issue is fixed and tested.
 
 ---
 
@@ -107,25 +109,25 @@ CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a p
 
 | # | Feature | Page | Description |
 |---|---------|------|-------------|
-| 1 | **KPI Summary Cards** | Overview | Displays Total Incidents, Top Crime Type, Peak Crime Hour, and Top District as real-time-filtered metric cards. |
+| 1 | **KPI Summary Cards** | Overview | Displays filtered incident count, most frequent category, current Chicago hour/model estimate, and highest-volume district. It does not calculate a peak crime hour. |
 | 2 | **Crime Trend Line Chart** | Overview | Interactive line chart of incident counts grouped by Month, Year, Day of Week, or Hour. |
 | 3 | **Crime Category Donut Chart** | Overview | Proportional donut chart showing share of each crime category. |
 | 4 | **Hour × Day Heatmap** | Overview | Heatmap matrix revealing peak crime windows by hour and day of week. |
 | 5 | **Top Districts Ranking Table** | Overview | Mini-table of the top 5 police districts by incident count. |
-| 6 | **Dynamic Insight Banner** | Overview | Auto-generated plain-English insight sentence summarizing the top crime, peak hour, and district. |
-| 7 | **Multi-Category Trend Comparison** | Trends | Multi-line chart comparing 2–4 selected crime categories over monthly periods. |
-| 8 | **Seasonality Bar Chart** | Trends | Bar chart of incident counts by season (Winter, Spring, Summer, Fall). |
-| 9 | **24-Hour Crime Profile** | Trends | Hourly bar chart of crime volume distribution across the day. |
-| 10 | **Interactive Chicago Map** | Map | Mapbox-powered geospatial visualization with three modes: Heatmap, Points (sampled), and District Bubbles. |
-| 11 | **Top 15 Community Areas** | Map | Horizontal bar chart ranking community areas by incident count. |
+| 6 | **Dynamic Insight Banner** | Overview | Shows the current-time model estimate and highest-volume district, or a no-matching-records message. |
+| 7 | **Multi-Category Trend Comparison** | Trends | Multi-line chart for selected categories by month; defaults to the three most common categories when none are selected. |
+| 8 | **Monthly Distribution Chart** | Trends | Bar chart of incident counts by calendar month (Jan–Dec); it does not aggregate into the derived season labels. |
+| 9 | **24-Hour Crime Profile** | Trends | Line/area chart of record counts by hour. |
+| 10 | **Interactive Chicago Map** | Map | Plotly map with three modes: Heatmap, sampled Points, and District Bubbles. |
+| 11 | **Top Community Areas** | Map | Horizontal bar chart ranking up to 10 community areas by incident count. |
 | 12 | **District Bar Chart** | Districts | Ranked bar chart of crime counts per police district. |
-| 13 | **Stacked Community Area Breakdown** | Districts | Top 15 community areas with stacked crime-type breakdown. |
-| 14 | **District Detailed Table** | Districts | Full table showing each district's incident count, top crime type, and arrest rate. |
-| 15 | **Crime Category Predictor** | Prediction | ML-powered prediction form: select model, hour, day, month, district, community area → predicted crime category with top-5 probabilities. |
+| 13 | **Stacked Community Area Breakdown** | Districts | Stacked chart of up to 15 community areas broken down by crime category. |
+| 14 | **District Detailed Table** | Districts | Table with district incident total, arrest rate, and domestic-incident share. |
+| 15 | **Crime Category Predictor** | Prediction | Form for model, hour, day, month, district, and community area; the callback estimates a category and displays up to five class probabilities. |
 | 16 | **Sync Current Time** | Prediction | One-click button to populate prediction inputs with the current Chicago time. |
-| 17 | **Model Benchmark Table** | Model Comparison | Side-by-side metric table (Accuracy, Precision, Recall, F1, Train Time) for all three models. |
+| 17 | **Model Benchmark Table** | Model Comparison | Displays the project benchmark values (Accuracy, Weighted Precision/Recall/F1, Train Time) for three models. |
 | 18 | **Confusion Matrix Heatmap** | Model Comparison | Switchable confusion matrix visualization for each model. |
-| 19 | **Feature Importance Chart** | Model Comparison | Horizontal bar chart of Random Forest Gini feature importances. |
+| 19 | **Feature Importance Chart** | Model Comparison | Intended to show Random Forest feature importances; current retraining code leaves this value undefined, so verify the stored metric artifact before relying on the chart. |
 | 20 | **Dataset Documentation** | About & Data | Dataset source, citation, timezone disclaimer, column dictionary. |
 | 21 | **CSV Download** | About & Data | Download the currently filtered dataset as a CSV file. |
 
@@ -133,12 +135,12 @@ CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a p
 
 | Feature | Description |
 |---------|-------------|
-| **Global Filter Panel** | Slide-out offcanvas panel with filters for Crime Categories, Police Districts, Year Range, Arrest status, and Domestic flag. All filters apply across every chart on every page. |
+| **Global Filter Panel** | Slide-out panel with filters for crime category, police district, year range, arrest status, and domestic flag. The Overview, Trends, Map, and Districts callbacks use these filters; Prediction and Model Comparison do not. CSV export uses the current filter state. |
 | **Reset Filters** | One-click reset of all filters to defaults. |
-| **Live Chicago Clock** | Real-time clock widget in the header displaying current Chicago Central Time, updated every second via `dcc.Interval`. |
+| **Clock Widget** | Header clock updates every second and attempts to display `America/Chicago` time via `zoneinfo`; if that timezone is unavailable, callback code falls back to the host's local time. |
 | **Client-Side URL Routing** | Multi-page SPA routing via `dcc.Location` — no page reloads. |
 | **Dark Theme** | Premium dark UI built with custom CSS and Dash Bootstrap Components (DARKLY theme). |
-| **Responsive Layout** | Sidebar collapses to icon-only on screens ≤ 992 px. Layout adapts for mobile. |
+| **Responsive Layout** | Page layouts use Bootstrap grid components. The custom stylesheet contains no explicit media-query breakpoints; verify behavior at target viewport sizes. |
 
 ---
 
@@ -146,7 +148,7 @@ CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a p
 
 | Category | Technology | Version | Role in Project |
 |----------|-----------|---------|-----------------|
-| **Language** | Python | 3.10+ | All application logic, data processing, ML |
+| **Language** | Python | No `requires-python` declaration | Application logic, data processing, ML. Python 3.10+ is the README setup baseline, not a tested support guarantee. |
 | **Web Framework** | Dash | ≥ 2.14.0 | Multi-page SPA framework, callbacks, routing |
 | **UI Components** | Dash Bootstrap Components | ≥ 1.5.0 | Layout grid, offcanvas, buttons, radio items |
 | **Charting** | Plotly | ≥ 5.18.0 | All interactive charts, maps, heatmaps |
@@ -157,12 +159,12 @@ CrimeScope transforms raw Chicago Police Department (CPD) crime reports into a p
 | **Parquet I/O** | PyArrow | ≥ 14.0.0 | High-performance Parquet read/write |
 | **Parquet I/O (fallback)** | fastparquet | ≥ 2023.10.0 | Alternative Parquet engine |
 | **HTTP Client** | requests | ≥ 2.31.0 | SODA API data download from Chicago Data Portal |
-| **WSGI Server** | Gunicorn | ≥ 21.2.0 | Production-grade HTTP server |
-| **Timezone** | pytz | (transitive) | Chicago Central Time conversion |
-| **Styling** | Custom CSS | — | 900+ line dark-theme stylesheet |
+| **WSGI Server** | Gunicorn | ≥ 21.2.0 | Optional POSIX production server; not supported on native Windows |
+| **Timezone** | Python `zoneinfo` | Standard library | Chicago Central Time display and current-time inputs |
+| **Styling** | Custom CSS | — | Dashboard layout and component styling |
 | **JS Assets** | Vanilla JavaScript | — | Dropdown scroll fix |
-| **Deployment** | Vercel | — | Serverless Python deployment |
-| **Maps** | Mapbox (via Plotly) | — | `carto-darkmatter` basemap tiles (no API key needed) |
+| **Deployment** | Vercel | — | Configuration is present; deployment has not been verified |
+| **Maps** | Plotly + CARTO tiles | — | `carto-darkmatter` tiles are requested by the browser; an API key is not configured in this project |
 | **External Data** | Chicago Data Portal SODA API | — | Source of raw crime data |
 
 ---
@@ -198,11 +200,11 @@ flowchart TD
     end
 
     subgraph Charts["Chart Factory (src/charts.py)"]
-        O["Plotly Figure Generators<br/>(14 chart functions)"]
+        O["Plotly Figure Generators<br/>(chart and map helpers)"]
     end
 
     subgraph Theme["Theme (src/theme.py)"]
-        P["CS_COLORS palette<br/>apply_cs_layout()"]
+        P["Color constants<br/>apply_dark_theme()"]
     end
 
     subgraph DataLayer["Data Layer"]
@@ -237,10 +239,10 @@ flowchart TD
     U --> V
     L --> T
     T --> V
-    Q --> R
-    Q --> S
+    R --> Q
+    S --> Q
     M --> Q
-    N -.->|"1s interval"| A
+    N -.->|"1s interval"| B
     W -.->|"auto-loaded"| B
     X -.->|"auto-loaded"| B
     G --> D
@@ -253,10 +255,10 @@ flowchart TD
 3. The **Page Routing Callback** reads the URL pathname and renders the appropriate page layout from `layout.py`, along with updating the sidebar active state and header titles.
 4. **Global Filters** are stored in a `dcc.Store` component. When the user changes any filter in the offcanvas panel, the store updates, triggering downstream chart callbacks.
 5. Each **Chart Update Callback** (for Overview, Trends, Map, Districts) reads the filter store, applies filters to the in-memory cached DataFrame, and calls the corresponding **Chart Factory** function in `charts.py` to generate a Plotly figure.
-6. The **Chart Factory** uses the **Theme** module to apply consistent dark styling to every figure.
+6. The **Chart Factory** uses color constants and `apply_dark_theme()` from `theme.py` to style figures.
 7. The **ML Prediction Callback** takes user inputs (hour, day, month, district, community area, model choice), calls `predict_crime_category()` in `ml.py`, and renders the prediction output with top-5 probabilities.
-8. The **Model Comparison Callback** loads pre-trained model metrics from `model_metrics.joblib` and renders the benchmark table, confusion matrix, and feature importance chart.
-9. **Data** is loaded once from Parquet (or CSV fallback) into an in-memory cache on startup and reused across all callbacks for sub-second filter performance.
+8. The **Model Comparison Callback** calls `train_and_eval_models()`. That function returns stored metrics when all three model files and the metrics file exist; otherwise it attempts training. The current training path fails because `feature_importances` is not defined.
+9. **Data** is loaded once from the committed Parquet asset when available; otherwise the loader preprocesses the raw CSV or generates synthetic data if the raw file is absent. The resulting DataFrame is cached in memory for callbacks.
 10. **Static assets** (`custom.css`, `dropdown_scroll.js`) are auto-loaded by Dash from the `assets/` directory.
 
 ---
@@ -271,7 +273,7 @@ crimescope/
 ├── AGENTS.md                       # Project rules and benchmark metrics
 ├── README.md                       # This documentation file
 ├── .gitignore                      # Git ignore rules
-├── .gitattributes                  # Git line ending normalization
+├── .gitattributes                  # Git LFS rules for large data/model files
 ├── .vercelignore                   # Vercel deployment ignore rules
 │
 ├── api/
@@ -283,15 +285,15 @@ crimescope/
 │
 ├── data/
 │   ├── raw/
-│   │   └── crimes.csv              # Raw Chicago crime dataset (gitignored)
+│   │   └── crimes.csv              # Raw CSV snapshot (Git LFS)
 │   └── processed/
-│       └── crimes_cleaned.parquet  # Cleaned and feature-engineered dataset (gitignored)
+│       └── crimes_cleaned.parquet  # Processed dataset snapshot (Git LFS)
 │
 ├── models/
-│   ├── random_forest.joblib        # Trained Random Forest pipeline (gitignored)
-│   ├── logistic_regression.joblib  # Trained Logistic Regression pipeline (gitignored)
-│   ├── decision_tree.joblib        # Trained Decision Tree pipeline (gitignored)
-│   └── model_metrics.joblib        # Evaluation metrics and confusion matrices (gitignored)
+│   ├── random_forest.joblib        # Stored Random Forest pipeline (Git LFS)
+│   ├── logistic_regression.joblib  # Stored Logistic Regression pipeline (Git LFS)
+│   ├── decision_tree.joblib        # Stored Decision Tree pipeline (Git LFS)
+│   └── model_metrics.joblib        # Stored metrics/confusion matrices (Git LFS)
 │
 ├── scripts/
 │   ├── download_data.py            # Downloads crime data from Chicago SODA API
@@ -314,11 +316,11 @@ crimescope/
 
 | Directory | Purpose | Gitignored? |
 |-----------|---------|-------------|
-| `data/raw/` | Stores the raw `crimes.csv` downloaded from Chicago Data Portal or generated synthetically. | Yes |
-| `data/processed/` | Stores the cleaned `crimes_cleaned.parquet` after preprocessing. | Yes |
-| `models/` | Stores trained scikit-learn pipeline `.joblib` files and evaluation metrics. | Yes (except `.gitkeep`) |
+| `data/raw/` | Raw `crimes.csv` source. A snapshot is tracked with Git LFS; review locally downloaded/generated replacements before committing. | No |
+| `data/processed/` | Processed `crimes_cleaned.parquet` snapshot, tracked with Git LFS. | No |
+| `models/` | Stored scikit-learn model `.joblib` files and metrics, tracked with Git LFS. | No |
 | `assets/` | Dash auto-loads all CSS and JS files from this directory at startup. | No |
-| `scripts/` | Standalone utility scripts for data download, sample generation, and development helpers. Not required at runtime. | No |
+| `scripts/` | Data download and synthetic-data scripts plus browser inspection/screenshot helpers. Playwright is not in `requirements.txt`; browser helpers need optional dependencies. | No |
 | `src/` | Core application source code — data prep, layout, callbacks, charts, theme, ML. | No |
 | `api/` | Vercel serverless entry point that exposes the Dash WSGI server. | No |
 
@@ -326,22 +328,21 @@ crimescope/
 
 ## Prerequisites and Software Requirements
 
-| Requirement | Minimum Version | Verification Command |
-|-------------|----------------|---------------------|
-| **Python** | 3.10+ | `python --version` |
-| **pip** | 21+ | `pip --version` |
-| **Git** | 2.30+ | `git --version` |
-| **Internet Connection** | — | Required for initial data download and Mapbox base tiles |
+| Requirement | Version / status | Verification Command |
+|-------------|-------------------|---------------------|
+| **Python** | Python 3.10+ is the setup baseline in this guide; the repository does not declare or test a formal support range. | `python --version` |
+| **pip** | No minimum declared. | `python -m pip --version` |
+| **Git** | Required to clone the repository. | `git --version` |
+| **Git LFS** | Required to retrieve the tracked CSV, Parquet, and model artifacts as real files. | `git lfs version` |
+| **Internet connection** | Needed for clone/LFS pull, optional data download, and browser-served fonts, icons, and map tiles. | — |
 
 ### Operating System Support
 
-CrimeScope runs on **Windows**, **macOS**, and **Linux**. All commands in this README use cross-platform syntax. Windows-specific notes are provided where relevant.
+The dashboard's development server is Python/Dash and is intended to run on Windows, macOS, or Linux, but the repository has no OS test matrix. Gunicorn is POSIX-only and is not needed for `python app.py`; Windows users who want Gunicorn should use WSL or another POSIX environment.
 
 ### Hardware
 
-- **RAM:** 4 GB minimum (dataset is loaded entirely into memory).
-- **Disk:** ~200 MB for raw data + processed parquet + trained models.
-- **GPU:** Not required. All ML training uses CPU.
+The full processed dataset is loaded into memory. No verified minimum RAM or disk requirement is published. The classifiers use CPU; no GPU support is configured.
 
 ---
 
@@ -349,7 +350,7 @@ CrimeScope runs on **Windows**, **macOS**, and **Linux**. All commands in this R
 
 ### Step 1: Install Python
 
-Download and install Python 3.10 or later from [python.org](https://www.python.org/downloads/).
+Install Python 3.10 or later from [python.org](https://www.python.org/downloads/). This is the documentation baseline, not a CI-verified compatibility guarantee.
 
 Verify installation:
 
@@ -360,14 +361,22 @@ python --version
 
 > **Windows Users:** Ensure "Add Python to PATH" is checked during installation.
 
-### Step 2: Clone the Repository
+### Step 2: Install Git LFS and obtain the repository
+
+Install [Git LFS](https://git-lfs.com/) and initialize it:
 
 ```bash
-git clone <repository-url>
-cd "dav project"
+git lfs install
 ```
 
-Replace `<repository-url>` with the actual Git remote URL.
+Clone the repository; configured Git LFS downloads the tracked data and model objects:
+
+```bash
+git clone https://github.com/Joshi4git-hub/CrimeScope.git
+cd CrimeScope
+```
+
+If a tracked file contains LFS pointer text instead of its contents, run `git lfs pull` from the repository root.
 
 ### Step 3: Create a Virtual Environment
 
@@ -376,7 +385,7 @@ Replace `<repository-url>` with the actual Git remote URL.
 python -m venv venv
 
 # Activate (Windows PowerShell)
-.\venv\Scripts\Activate
+.\venv\Scripts\Activate.ps1
 
 # Activate (macOS / Linux)
 source venv/bin/activate
@@ -387,22 +396,30 @@ Verify the virtual environment is active — your terminal prompt should show `(
 ### Step 4: Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-This installs all 11 required packages: Dash, Dash Bootstrap Components, Pandas, NumPy, Plotly, scikit-learn, joblib, PyArrow, fastparquet, Gunicorn, and requests.
+This installs the 11 packages in `requirements.txt`. Playwright is not included and is only needed for optional browser-inspection and screenshot helpers.
+
+**Native Windows note:** Gunicorn is POSIX-only. For a native Windows development run, install the other manifest packages without Gunicorn:
+
+```powershell
+python -m pip install "dash>=2.14.0" "dash-bootstrap-components>=1.5.0" "pandas>=2.0.0" "numpy>=1.24.0" "plotly>=5.18.0" "scikit-learn>=1.3.0" "joblib>=1.3.0" "pyarrow>=14.0.0" "fastparquet>=2023.10.0" "requests>=2.31.0"
+```
 
 ### Step 5: Obtain the Dataset
 
 You have two options:
 
-**Option A — Download real data from Chicago Data Portal (recommended):**
+**Option A — Fetch a public-data snapshot from the Chicago Data Portal:**
 
 ```bash
 python scripts/download_data.py
 ```
 
-This fetches ~100,000 crime records (2020–2024) from the Socrata Open Data API and saves them to `data/raw/crimes.csv`.
+This requests up to 100,000 records for 2020–2024 from Socrata in pages of 20,000. The number returned depends on the API response. On a request exception or when no rows are retrieved, the script generates synthetic data. A non-200 response stops pagination; if earlier pages succeeded, the script may save those partial public-data results despite printing a fallback message.
+
+> **Tracked-file warning:** The repository tracks its current raw CSV, processed Parquet, and model artifacts through Git LFS. Running either data script can replace the tracked raw CSV; preprocessing can replace the processed Parquet. Back up any snapshot you want to preserve or use a separate worktree before regenerating it.
 
 **Option B — Generate synthetic sample data (offline/quick start):**
 
@@ -410,29 +427,23 @@ This fetches ~100,000 crime records (2020–2024) from the Socrata Open Data API
 python scripts/make_sample_data.py
 ```
 
-This generates 50,000 synthetic crime records for development and testing.
+This generates 50,000 synthetic records for development only. These are generated data, not observed incidents, and must not be presented as actual crime statistics.
 
-> **Note:** If neither script is run, the application will automatically call `make_sample_data.py` on first launch when `data/raw/crimes.csv` is not found.
+> **Note:** If the raw CSV is absent, `clean_and_process_data()` generates synthetic records. If the committed processed Parquet exists and loads successfully, it is used first and this fallback is not reached.
 
-### Step 6: Run Data Preprocessing (Optional)
+### Step 6: Run Data Preprocessing when needed
 
-The preprocessing runs automatically on first app launch. To run it manually:
+On startup the application loads an existing `data/processed/crimes_cleaned.parquet` first, so downloading or replacing the raw CSV does **not** automatically refresh the data used by the dashboard. If you want the app to use a newly downloaded or generated raw file, preprocess it explicitly:
 
 ```bash
 python src/data_prep.py
 ```
 
-This cleans the raw CSV, engineers temporal features, groups rare crime categories, and saves the result to `data/processed/crimes_cleaned.parquet`.
+This cleans the raw CSV, engineers temporal features, groups rare crime categories, and overwrites `data/processed/crimes_cleaned.parquet`.
 
-### Step 7: Train ML Models (Optional)
+### Step 7: Model artifacts and retraining status
 
-Models are trained automatically on first app launch if model files are not present. To train manually:
-
-```bash
-python src/ml.py
-```
-
-This trains Random Forest, Logistic Regression, and Decision Tree classifiers, evaluates them, and saves the pipelines and metrics to the `models/` directory.
+The repository includes model `.joblib` artifacts tracked with Git LFS. The app can use the stored models and metrics when they load correctly. **Retraining is currently broken:** `src/ml.py` references `feature_importances` in the results without defining it, so a cache miss or forced retraining raises `NameError`. Do not rely on `python src/ml.py` as a successful setup step until this defect is fixed and training is verified.
 
 ### Step 8: Start the Application
 
@@ -455,7 +466,7 @@ Open your browser and navigate to **http://127.0.0.1:8050**.
 3. Navigate to **"Prediction"** in the sidebar, configure inputs, and click **"Estimate Crime Category"** — a prediction with top-5 probabilities should appear.
 4. Navigate to **"Model Comparison"** — the benchmark metrics table and confusion matrix should render.
 
-If any page shows empty charts, verify that the dataset was downloaded/generated in Step 5.
+If pages show empty charts, check that Git LFS objects were retrieved and that the processed dataset is readable. No end-to-end installation check was run as part of this README update.
 
 ---
 
@@ -473,7 +484,7 @@ CrimeScope does **not** require any environment variables for local development.
 | `FEATURES_NUM` | `src/ml.py` | `["hour", "day_of_week_num", "month", "district", "community_area", "latitude", "longitude"]` | Numeric features for ML |
 | `FEATURES_BOOL` | `src/ml.py` | `["is_weekend"]` | Boolean features for ML |
 | `TARGET_COL` | `src/ml.py` | `"primary_type_clean"` | ML prediction target column |
-| `SODA_ENDPOINT` | `scripts/download_data.py` | `https://data.cityofchicago.org/resource/ijzp-q8t2.csv` | Chicago Data Portal SODA API endpoint |
+| SODA URL | `scripts/download_data.py` | `https://data.cityofchicago.org/resource/ijzp-q8t2.csv` | Chicago Data Portal endpoint (a local constant, not an environment variable) |
 | Host/Port | `app.py` | `127.0.0.1:8050` | Local development server |
 
 ### Vercel-Specific Configuration
@@ -484,7 +495,7 @@ The `vercel.json` file routes all requests to `api/index.py`, which exposes the 
 
 ## Detailed Module-by-Module Implementation
 
-### `app.py` — Application Entry Point
+### [`app.py`](./app.py) — Application Entry Point
 
 **Location:** `app.py` (project root)
 
@@ -514,7 +525,7 @@ server = app.server  # Flask WSGI server (used by Vercel and Gunicorn)
 
 ---
 
-### `src/data_prep.py` — Data Preprocessing Engine
+### [`src/data_prep.py`](./src/data_prep.py) — Data Preprocessing Engine
 
 **Location:** `src/data_prep.py`
 
@@ -526,26 +537,26 @@ server = app.server  # Flask WSGI server (used by Vercel and Gunicorn)
 |----------|---------|
 | `get_season(month)` | Maps month number to season string (Winter, Spring, Summer, Fall). |
 | `clean_and_process_data()` | Full preprocessing pipeline — parse dates, drop nulls/duplicates, filter valid Chicago coordinates, cast types, convert booleans, group crime categories. |
-| `get_processed_data()` | Returns in-memory cached DataFrame. Loads from Parquet on first call, or runs `clean_and_process_data()` if no Parquet exists. |
+| `get_processed_data(force_reload=False, raw_path=None, processed_path=None)` | Returns the module-cached DataFrame; otherwise loads Parquet when available, or runs preprocessing. `force_reload=True` skips the Parquet read and preprocesses the raw CSV. |
 | `get_data_summary()` | Returns summary statistics dict (row counts, date range, top crimes) for the About page. |
 
 **Preprocessing Steps (in order):**
 
 1. **Load** raw CSV (or generate synthetic data if file is missing).
-2. **Standardize** column names to lowercase with underscores.
+2. **Standardize** column names to lowercase with underscores. Input must contain `date`, `latitude`, `longitude`, `district`, and `primary_type` after normalization.
 3. **Parse dates** using `pd.to_datetime()`, drop invalid dates.
 4. **Derive temporal columns:** `year`, `month`, `month_name`, `day_of_week`, `day_of_week_num`, `hour`, `is_weekend`, `season`.
-5. **Remove duplicates** and rows with missing critical fields (`latitude`, `longitude`, `district`, `primary_type`).
+5. **Remove duplicates** and, when present, rows missing critical fields (`latitude`, `longitude`, `district`, `primary_type`).
 6. **Filter coordinates** to valid Chicago bounding box (lat 41.5–42.1, lon −88.1 to −87.4).
 7. **Cast** `district` and `community_area` to integers.
 8. **Convert** `arrest` and `domestic` to boolean.
 9. **Group** crime types outside the top 12 most frequent into an `"OTHER"` category, stored as `primary_type_clean`.
-10. **Save** to Parquet at `data/processed/crimes_cleaned.parquet`.
-11. **Cache** in a module-level global variable for sub-second callback access.
+10. **Save** to Parquet at `data/processed/crimes_cleaned.parquet`; if Parquet writing fails, write a CSV fallback with the `.csv` extension. The normal loader does not read that fallback file; without a readable Parquet it preprocesses the raw input again.
+11. **Cache** in a module-level global variable for reuse by callbacks. No callback latency benchmark is published.
 
 ---
 
-### `src/layout.py` — UI Layout Builder
+### [`src/layout.py`](./src/layout.py) — UI Layout Builder
 
 **Location:** `src/layout.py` (812 lines)
 
@@ -559,7 +570,7 @@ server = app.server  # Flask WSGI server (used by Vercel and Gunicorn)
 | `build_top_header()` | Header with section label, title, subtitle, Chicago clock, and filter button | Every page |
 | `build_offcanvas_filters(df)` | Offcanvas panel with dropdowns, range slider, radio items, reset button | Global filters |
 | `build_overview_page()` | Overview layout with KPI cards, trend chart, donut, heatmap, districts table, insight banner | `/` route |
-| `build_trends_page()` | Trends layout with multi-line comparison, seasonality, hourly profile charts | `/trends` route |
+| `build_trends_page()` | Trends layout with multi-line comparison, monthly distribution, and hourly profile charts | `/trends` route |
 | `build_map_page()` | Map layout with mode toggle (Heatmap/Points/Bubbles), map chart, top community areas | `/map` route |
 | `build_districts_page()` | Districts layout with bar chart, stacked CA chart, detailed breakdown table | `/districts` route |
 | `build_prediction_page(df)` | Prediction layout with model selector, input sliders/dropdowns, prediction output | `/prediction` route |
@@ -582,7 +593,7 @@ NAV_ITEMS = [
 
 ---
 
-### `src/callbacks.py` — Callback Logic Controller
+### [`src/callbacks.py`](./src/callbacks.py) — Callback Logic Controller
 
 **Location:** `src/callbacks.py`
 
@@ -593,119 +604,108 @@ NAV_ITEMS = [
 | # | Callback | Trigger(s) | Output(s) |
 |---|----------|-----------|-----------|
 | 1 | **Page Routing** | `url.pathname` | `page-content`, `sidebar-container`, header labels |
-| 2 | **Chicago Clock** | `chicago-clock-interval.n_intervals` (1s) | `live-chicago-clock` text |
-| 3 | **Filter Toggle** | `btn-open-filters.n_clicks` | `offcanvas-filters.is_open` |
-| 4 | **Filter Store** | All 5 filter inputs | `global-filter-store.data` (JSON) |
-| 5 | **Reset Filters** | `btn-reset-filters.n_clicks` | All 5 filter values reset to defaults |
-| 6 | **Overview Charts** | `global-filter-store`, `overview-trend-grouping` | 4 KPIs + trend + donut + heatmap + table + insight |
-| 7 | **Trends Options** | `global-filter-store` | `trends-multi-select.options` |
-| 8 | **Trends Charts** | `global-filter-store`, `trends-multi-select` | Multi-line + seasonality + hourly profile |
-| 9 | **Map Charts** | `global-filter-store`, `map-mode-toggle` | Chicago map + top community areas |
-| 10 | **Districts Charts** | `global-filter-store` | Districts bar + top-15 CA + detailed table |
-| 11 | **Model Comparison** | `global-filter-store`, `cm-model-select` | Metrics table + confusion matrix + feature importance |
-| 12 | **Prediction** | `btn-run-prediction.n_clicks` + 6 input states | Prediction output container |
-| 13 | **CSV Download** | `btn-download-csv.n_clicks` | Download trigger |
+| 2 | **Filter Toggle** | `btn-open-filters.n_clicks` | `offcanvas-filters.is_open` |
+| 3 | **Filter Store and Reset** | Five filter controls and reset button | `global-filter-store.data`; reset restores defaults |
+| 4 | **Overview Charts** | `global-filter-store`, `overview-trend-grouping` | KPIs + trend + donut + heatmap + table + insight |
+| 5 | **Trends Charts** | `global-filter-store`, `trends-multi-select` | Options + multi-line + monthly chart + hourly profile |
+| 6 | **Map Charts** | `global-filter-store`, `map-mode-toggle` | Chicago map + top community areas |
+| 7 | **Districts Charts** | `global-filter-store` | District bar + top-15 community-area chart + table |
+| 8 | **Prediction Hour Badge** | Hour slider | Hour badge |
+| 9 | **Prediction Time Sync** | Sync button | Populates hour/day/month from Chicago time |
+| 10 | **Prediction** | Button and prediction fields (all are callback inputs) | Prediction output; changing an input can also trigger a prediction |
+| 11 | **Model Comparison** | `cm-model-select` | Metrics table + confusion matrix + feature importance |
+| 12 | **CSV Download** | `btn-download-csv.n_clicks` | Filtered CSV download |
+| 13 | **Chicago Clock** | `chicago-clock-interval.n_intervals` (1s) | `live-chicago-clock` text |
 
-**Helper: `apply_global_filters(df, filters_json)`**
+**Helper: `filter_dataframe(df, filter_store)`**
 
-This utility function deserializes the JSON filter store and applies a chain of DataFrame filters: crime type, district, year range, arrest, and domestic flag.
+This helper reads the filter dictionary from `dcc.Store` and applies optional filters for crime type, district, year range, arrest status, and domestic status.
 
 ---
 
-### `src/charts.py` — Plotly Chart Factory
+### [`src/charts.py`](./src/charts.py) — Plotly Chart Factory
 
 **Location:** `src/charts.py`
 
-**Purpose:** Contains 14 standalone functions, each returning a fully styled `plotly.graph_objects.Figure`. Every function applies the CrimeScope dark theme via `apply_cs_layout()`.
+**Purpose:** Contains Plotly figure helpers for each visualization, along with shared empty-state and styling helpers. Chart functions return Plotly figures; styling is applied by `apply_dark_theme()` where appropriate.
 
 **Chart Functions:**
 
 | Function | Chart Type | Used On |
 |----------|-----------|---------|
-| `make_crime_trend_chart(df, group_by)` | Line + fill area | Overview |
-| `make_crime_donut_chart(df)` | Donut pie | Overview |
-| `make_hour_day_heatmap(df)` | Heatmap matrix | Overview |
-| `make_multi_line_comparison_chart(df, categories)` | Multi-line | Trends |
-| `make_seasonality_chart(df)` | Bar chart | Trends |
-| `make_hourly_profile_chart(df)` | Bar chart | Trends |
-| `make_chicago_map(df, mode)` | Mapbox density / scatter / bubble | Map |
-| `make_top_community_areas_chart(df)` | Horizontal bar | Map |
-| `make_districts_bar_chart(df)` | Vertical bar | Districts |
-| `make_top15_ca_chart(df)` | Stacked bar | Districts |
-| `make_confusion_matrix_chart(metrics, model)` | Heatmap | Model Comparison |
-| `make_feature_importance_chart(metrics)` | Horizontal bar | Model Comparison |
+| `build_sparkline(series_data)` | Small line/area figure | Overview KPI cards |
+| `build_crime_trend_chart(df, group_by)` | Line/area | Overview |
+| `build_crime_type_donut(df)` | Donut | Overview |
+| `build_hour_day_heatmap(df)` | Heatmap | Overview |
+| `build_multi_crime_comparison(df, selected_crimes)` | Multi-line | Trends |
+| `build_seasonality_chart(df)` | Monthly bar chart | Trends |
+| `build_hourly_profile_chart(df)` | Line/area | Trends |
+| `build_chicago_map(df, map_mode)` | Density, sampled points, or district bubbles | Map |
+| `build_top_community_areas_chart(df)` | Horizontal bar, top 10 | Map |
+| `build_districts_bar_chart(df)` | Vertical bar | Districts |
+| `build_top_15_ca_chart(df)` | Stacked bar | Districts |
+| `build_prediction_probs_chart(top_probs)` | Probability display | Prediction |
+| `build_confusion_matrix_heatmap(cm, classes, model_name)` | Heatmap | Model Comparison |
+| `build_feature_importance_chart(feature_importances)` | Horizontal bar | Model Comparison |
+| `apply_dark_theme(...)`, `create_empty_figure(...)` | Shared styling and empty state | Multiple pages |
 
 **Map Modes:**
 
-- **Heatmap:** `go.Densitymapbox` with up to 8,000 sampled points, `YlOrRd` colorscale.
-- **Points (Sampled):** `px.scatter_mapbox` with up to 3,000 sampled points colored by crime type.
+- **Heatmap:** Plotly density map with at most 20,000 sampled rows.
+- **Points (Sampled):** Plotly scatter map with at most 20,000 sampled rows colored by cleaned crime type.
 - **District Bubbles:** `px.scatter_mapbox` with aggregated district centroids, sized by count.
 
-All maps use the `carto-darkmatter` basemap style (free, no API key required), centered on Chicago (41.8781, −87.6298).
+All map modes use the `carto-darkmatter` style and Chicago center coordinates (41.8781, −87.6298). Map tiles are served externally by CARTO and require browser network access; the repository does not configure a map API key.
 
 ---
 
-### `src/theme.py` — Visual Theme Configuration
+### [`src/theme.py`](./src/theme.py) — Visual Theme Configuration
 
 **Location:** `src/theme.py`
 
 **Purpose:** Centralized color palette and Plotly layout styling function.
 
-**`CS_COLORS` palette:**
+**Color constants:** `COLOR_BG`, `COLOR_CARD`, `COLOR_BORDER`, `COLOR_PRIMARY`, `COLOR_SECONDARY`, `COLOR_TERTIARY`, `COLOR_TEXT_MAIN`, `COLOR_TEXT_MUTED`, `COLOR_GRID`, and `COLORWAY`.
 
-| Key | Value | Usage |
-|-----|-------|-------|
-| `primary` | `#FF5A1F` | Accent orange — brand color, chart lines, active states |
-| `secondary` | `#FFC23D` | Gold yellow — secondary highlights |
-| `accent_green` | `#00C9A7` | Teal — KPI cards |
-| `accent_purple` | `#6C63FF` | Purple — KPI cards |
-| `bg_dark` | `#0B0B0B` | Darkest background — charts, body |
-| `bg_card` | `#141414` | Card backgrounds |
-| `bg_surface` | `#1A1A1A` | Surface elements |
-| `border` | `#262626` | Borders |
-| `text_primary` | `#F2F2F2` | Primary text |
-| `text_secondary` | `#8A8A8A` | Muted text |
-| `palette` | 13 colors | Multi-series chart colors |
-
-**`apply_cs_layout(fig, height=400)`:** Applies `plotly_dark` template, sets backgrounds, fonts (Inter), margins, hover styling, legend, axis grid colors, and default chart height.
+`COLORWAY` supplies the multi-series palette. `register_crimescope_template()` registers the `crimescope_dark` Plotly template, which is selected as the Plotly default when `src.theme` is imported. `src.charts.apply_dark_theme()` applies chart backgrounds, fonts, margins, and axis styling.
 
 ---
 
-### `src/ml.py` — Machine Learning Pipeline
+### [`src/ml.py`](./src/ml.py) — Machine Learning Pipeline
 
 **Location:** `src/ml.py`
 
-**Purpose:** Trains, evaluates, and persists three supervised classification models. Provides inference function for real-time crime category prediction.
+**Purpose:** Trains, evaluates, and persists three supervised classification models, and exposes a function for single-record category inference. The dashboard's current-time panel invokes the model using the current local time; the data itself is not live.
 
 See the dedicated [Machine Learning and AI Implementation](#machine-learning-and-ai-implementation) section below for full details.
 
 ---
 
-### `scripts/` — Utility Scripts
+### [`scripts/`](./scripts/) — Utility Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `download_data.py` | Downloads real crime data from the Chicago Data Portal SODA API. Fetches records for years 2020–2024 (configurable), saves to `data/raw/crimes.csv`. |
+| `download_data.py` | Requests up to 100,000 records for 2020–2024 from the Chicago Data Portal SODA API and writes `data/raw/crimes.csv`; generates synthetic records on request exceptions or when no rows are retrieved. A later non-200 response can leave partial results. |
 | `make_sample_data.py` | Generates 50,000 synthetic crime records with realistic distributions for development and testing. |
 | `inspect_dom.py` | Development utility for DOM inspection (not required at runtime). |
 | `inspect_open_dropdown_dom.py` | Development utility for dropdown DOM inspection (not required at runtime). |
-| `take_screenshots.py` | Development utility for automated screenshot capture (not required at runtime). |
+| `take_screenshots.py` | Optional Playwright-based browser screenshot helper; Playwright is not installed by `requirements.txt`. |
 | `test_hover_screenshot.py` | Development utility for hover-state screenshot testing (not required at runtime). |
 
 ---
 
-### `assets/` — Static Frontend Assets
+### [`assets/`](./assets/) — Static Frontend Assets
 
 | File | Purpose |
 |------|---------|
-| `custom.css` | 900+ line master stylesheet implementing the complete CrimeScope dark theme. Covers: CSS variables, sidebar, navigation, header, cards, KPI cards, buttons, tables, insight banners, dropdown overrides, slider overrides, offcanvas overrides, scrollbar styling, and responsive breakpoints (≤992px sidebar collapse, ≤576px mobile layout). |
-| `dropdown_scroll.js` | JavaScript mutation observer that prevents body scroll propagation when a Dash dropdown menu is open. |
+| `custom.css` | Styles the dark dashboard, sidebar, navigation, header, cards, buttons, tables, dropdowns, sliders, offcanvas, and scrollbars. It imports Inter from Google Fonts and defines no explicit CSS media queries. |
+| `dropdown_scroll.js` | JavaScript event handlers that attempt to reset dropdown menu scroll position when a dropdown is opened. |
 
 Both files are **automatically loaded** by Dash from the `assets/` directory — no explicit import is needed.
 
 ---
 
-### `api/index.py` — Vercel Serverless Entry Point
+### [`api/index.py`](./api/index.py) — Vercel Serverless Entry Point
 
 **Location:** `api/index.py`
 
@@ -732,7 +732,7 @@ flowchart TD
     E -->|"Click Predict"| H["Prediction callback → ml.py inference"]
 
     G --> I["Chart callbacks triggered"]
-    I --> J["apply_global_filters() on cached DataFrame"]
+    I --> J["filter_dataframe() on cached DataFrame"]
     J --> K["Chart factory functions generate Plotly figures"]
     K --> L["Figures rendered in browser"]
 
@@ -748,13 +748,13 @@ flowchart TD
 
 ### Workflow Steps (Detailed)
 
-1. **App Startup:** `app.py` initializes Dash, calls `get_processed_data()` which loads the Parquet file into an in-memory DataFrame (or preprocesses raw CSV if Parquet is absent).
+1. **App Startup:** `app.py` initializes Dash, calls `get_processed_data()` which loads the Parquet file into an in-memory DataFrame (or preprocesses the raw CSV if Parquet is absent; if the raw CSV is also absent, synthetic data is generated).
 2. **Initial Render:** The top-level layout is served — `dcc.Location`, `dcc.Store`, `dcc.Interval`, offcanvas, sidebar container, and main content area.
 3. **Page Routing:** The routing callback reads `url.pathname`, maps it to one of 7 pages, calls the corresponding `build_*_page()` function, updates the sidebar's active link, and sets the header section label/title/subtitle.
-4. **Global Filtering:** When any filter changes (crime types, districts, year range, arrest, domestic), the filter store callback serializes the values to JSON in `dcc.Store`. All chart callbacks have `global-filter-store` as an input, so they re-fire automatically.
-5. **Chart Rendering:** Each chart callback calls `apply_global_filters()` to filter the cached DataFrame, then calls the relevant chart factory function(s) in `charts.py`. The returned Plotly figures are rendered by Dash in the browser.
-6. **ML Prediction:** On the Prediction page, the user sets spatio-temporal inputs and clicks "Estimate Crime Category." The callback computes approximate lat/lon from the selected district's mean coordinates, calls `predict_crime_category()` which loads the selected `.joblib` model, runs `predict_proba()`, and returns the top-5 categories with probabilities. The output is rendered as a styled card with horizontal probability bars.
-7. **CSV Download:** On the About page, clicking "Download Filtered Data as CSV" triggers the download callback, which applies current global filters and sends the DataFrame as a CSV file.
+4. **Global Filtering:** Filter changes update `dcc.Store`. Overview, Trends, Map, and Districts callbacks consume this state; Prediction and Model Comparison do not.
+5. **Chart Rendering:** Filtered chart callbacks call `filter_dataframe()` on the cached DataFrame, then call the relevant figure helper in `charts.py`. Dash renders the figures in the browser.
+6. **ML Prediction:** The Prediction callback passes hour, day, month, district, community area, and model choice to `predict_crime_category()`. The UI callback also fires on changes to its input fields, not only on the button. No district coordinates are calculated; inference uses the function's default Chicago-center latitude/longitude. If a model file is missing, inference attempts model training, which currently fails as described in the ML section.
+7. **CSV Download:** On the About page, clicking "Download Filtered Data as CSV" triggers the download callback, applies current global filters, and sends `crimescope_filtered_crimes.csv`.
 8. **Live Clock:** The `dcc.Interval` component fires every 1 second, triggering the clock callback which returns the current Chicago time formatted as `"hh:mm:ss AM/PM CT — Day, Mon DD, YYYY"`.
 
 ---
@@ -765,7 +765,7 @@ flowchart TD
 flowchart LR
     subgraph Source["Data Source"]
         A["Chicago Data Portal<br/>SODA API<br/>(ijzp-q8t2)"]
-        B["Synthetic Generator<br/>(make_sample_data.py)"]
+        B["Synthetic Generator<br/>(development-only sample)"]
     end
 
     subgraph Ingest["Ingestion"]
@@ -810,10 +810,10 @@ flowchart LR
 |-----------|-------|
 | **Source** | City of Chicago Data Portal — "Crimes - 2001 to Present" (Dataset ID: `ijzp-q8t2`) |
 | **Publisher** | Chicago Police Department (CPD) CLEAR System |
-| **Coverage** | 2020–2024 (configurable in `download_data.py`) |
+| **Download query** | The downloader filters for 2020–2024; the number of records returned is capped and depends on the API response. |
 | **Format** | Raw: CSV → Processed: Apache Parquet |
-| **Timezone** | All timestamps are in Chicago Local Time (US/Central — CST/CDT) |
-| **Anonymization** | Geographic coordinates are block-level anonymized by CPD |
+| **Time handling** | `pd.to_datetime()` is used without timezone conversion. The UI labels some display values as Chicago time; confirm the source snapshot's timestamp convention before interpreting exact hours. |
+| **Location precision** | The source and processed data include location fields and coordinates. Consult the source portal's documentation for publication precision; do not infer exact incident locations from the dashboard. |
 
 ### Key Derived Columns
 
@@ -828,6 +828,28 @@ flowchart LR
 | `is_weekend` | bool | `True` if Saturday or Sunday |
 | `season` | str | `"Winter"`, `"Spring"`, `"Summer"`, `"Fall"` |
 | `primary_type_clean` | str | Top 12 categories preserved, all others → `"OTHER"` |
+
+---
+
+## API and Data Storage
+
+### External API consumed
+
+`scripts/download_data.py` makes HTTP GET requests to the Chicago Data Portal Socrata CSV endpoint:
+
+```text
+https://data.cityofchicago.org/resource/ijzp-q8t2.csv
+```
+
+The script sends `$where=year >= 2020 and year <= 2024`, `$limit=20000`, an increasing `$offset`, and `$order=date DESC`; each request has a 10-second timeout. It requests up to 100,000 rows. No API token is configured. Request exceptions or an empty initial result lead to generated sample records. A non-200 response stops pagination; if prior pages were received, those partial rows can be saved instead. The output is written to `data/raw/crimes.csv`.
+
+### Application API
+
+The repository does not define a separate REST/JSON API or documented request/response contract. `api/index.py` exposes the Dash/Flask WSGI application for the Vercel route in `vercel.json`; the app's interactivity is implemented through Dash callbacks.
+
+### Persistence
+
+There is no database, schema, migration system, or user-account store. Data is held in CSV/Parquet files, loaded into an in-process Pandas DataFrame cache, and model pipelines/metrics are serialized with joblib. The raw CSV, processed Parquet, and model files are tracked through Git LFS according to `.gitattributes`. Preprocessing and model training can write into the local `data/` and `models/` directories.
 
 ---
 
@@ -876,15 +898,10 @@ pipeline = Pipeline(steps=[
 3. Split 80/20 train/test with stratified sampling (`stratify=y`).
 4. Fit `Pipeline(preprocessor + classifier)` on training data.
 5. Predict on test data; compute accuracy, weighted precision, weighted recall, weighted F1.
-6. Generate confusion matrix and extract feature importances (Random Forest only).
-7. Save each trained pipeline to `models/<model_name>.joblib`.
-8. Save all metrics to `models/model_metrics.joblib`.
+6. Generate a confusion matrix. The code then references an undefined `feature_importances` name while assembling model results; fresh training raises `NameError` before it saves the model artifacts.
+7. If the defect is fixed, the intended outputs are model pipelines under `models/` and metrics in `models/model_metrics.joblib`.
 
-**To retrain all models:**
-
-```bash
-python src/ml.py
-```
+The three benchmark metric fields in the code are replaced with the fixed reference values in the table below, rather than retaining the scores computed from the current split. The confusion matrix is calculated from that split if training reaches it, so do not assume it corresponds numerically to the fixed benchmark table.
 
 ### Benchmark Metrics
 
@@ -898,7 +915,7 @@ python src/ml.py
 
 The `predict_crime_category()` function:
 
-1. Loads the selected model's `.joblib` pipeline.
+1. Loads the selected model's `.joblib` pipeline, attempting training if the model file is missing.
 2. Constructs a single-row DataFrame from user inputs.
 3. Derives `is_weekend` from `day_of_week_num`.
 4. Calls `pipeline.predict_proba()` to get class probabilities.
@@ -911,13 +928,13 @@ result = predict_crime_category(
     latitude=41.8781, longitude=-87.6298,
     model_name="RandomForest"
 )
-# Returns: {"predicted_category": "THEFT", "top_probabilities": [...]}
+# Returns a model-dependent class label and up to five class probabilities.
 ```
 
 ### ML Limitations and Responsible Use
 
 - **Inherent difficulty:** Predicting specific crime categories from spatio-temporal features alone is an inherently difficult task. The features explain *where* and *when* crimes happen but not the underlying causal factors.
-- **Moderate accuracy is expected:** ~80% accuracy is reasonable given the overlapping spatial-temporal patterns across crime types.
+- **Evaluation status:** The benchmark table contains fixed reference values, not a verified evaluation of the checked-in model artifacts on the current data snapshot.
 - **Not for operational policing:** These predictions are statistical estimates based on historical patterns. They must not be used as the sole basis for policing decisions, resource allocation, or individual risk assessment.
 - **Bias considerations:** The training data reflects historical policing patterns, which may embed systemic biases (e.g., over-policing of certain areas for certain crime types like NARCOTICS).
 - **No real-time data:** The model is trained on historical data and does not incorporate live feeds.
@@ -931,8 +948,8 @@ result = predict_crime_category(
 | Route | Page | Description |
 |-------|------|-------------|
 | `/` | Overview | KPI cards, trend chart, donut chart, heatmap, top districts, insight |
-| `/trends` | Trends | Multi-line comparison, seasonality, hourly profile |
-| `/map` | Map | Interactive Mapbox map with 3 view modes, top community areas |
+| `/trends` | Trends | Multi-line comparison, monthly distribution, hourly profile |
+| `/map` | Map | Interactive Plotly map with 3 view modes, top community areas |
 | `/districts` | Districts | District ranking bar chart, community area breakdown, detailed table |
 | `/prediction` | Prediction | ML model selector, input parameters, prediction output |
 | `/model-comparison` | Model Comparison | Benchmark table, confusion matrix, feature importance, methodology notes |
@@ -947,7 +964,7 @@ The **persistent left sidebar** contains:
 - Active link is highlighted with an orange gradient background.
 - Dataset attribution footer ("Chicago CLEAR Dataset, v1.0 • 2020–2024").
 
-On screens ≤ 992 px, the sidebar collapses to icon-only mode (64 px width). Navigation labels and footer text are hidden.
+The sidebar is built with a fixed-width style. The repository does not include an explicit CSS breakpoint that collapses it on smaller screens; check narrow-screen behavior before describing the UI as mobile-ready.
 
 ### Global Filters
 
@@ -960,7 +977,7 @@ The **offcanvas filter panel** slides in from the right when the user clicks "Gl
 5. **Domestic Incident** — radio items (All / Yes / No).
 6. **Reset All Filters** — button to restore defaults.
 
-Filter state is stored in `dcc.Store` as JSON and consumed by every chart callback.
+Filter state is stored in `dcc.Store` and consumed by Overview, Trends, Map, and Districts callbacks. It is not applied to Prediction or Model Comparison.
 
 ### Theme and Styling System
 
@@ -968,11 +985,10 @@ CrimeScope uses a **dual-layer theming system:**
 
 1. **Dash Bootstrap Components** with the `DARKLY` theme — provides base dark styling and grid system.
 2. **Custom CSS** (`assets/custom.css`, 900+ lines) — overrides and extends the Bootstrap theme with:
-   - CSS custom properties (`--cs-primary`, `--cs-bg-card`, etc.).
    - Custom component classes (`.cs-card`, `.kpi-card`, `.cs-table`, `.insight-banner`).
    - Dash-specific overrides (`.dash-dropdown`, `.rc-slider`, `.offcanvas`).
    - Custom scrollbar styling.
-   - Responsive breakpoints (992 px, 576 px).
+   - Component-level sizing and spacing; no explicit media-query breakpoints are present in the stylesheet.
 
 ---
 
@@ -1009,15 +1025,15 @@ The project includes Vercel configuration for serverless deployment:
 }
 ```
 
-**`.vercelignore`:** Excludes `__pycache__`, `.env`, virtual environments, `.git`, and `scripts/` from the deployment bundle.
+**`.vercelignore`:** Excludes `data/raw/`, `scripts/`, `docs/`, virtual environments, bytecode, and `.git/`. It does not exclude the processed Parquet or `models/` directory, which are needed for the normal app/model path.
 
 **Deployment Steps:**
 
 1. Install the Vercel CLI: `npm i -g vercel`
 2. Run `vercel` in the project root and follow the prompts.
-3. Ensure `data/processed/crimes_cleaned.parquet` and `models/*.joblib` files are included (they are gitignored, so you may need to generate them before deploying).
+3. Confirm the deployment build receives the processed Parquet and model artifacts; retrieve Git LFS objects before deploying if the platform checkout contains pointer files.
 
-> **Note:** Vercel Serverless Functions have memory and execution time limits. Large datasets may require sampling or optimization for production deployment.
+> **Status:** Vercel configuration is present, but a deployment has not been verified. The app loads its dataset at import/startup and retains it in process memory; check the platform's current function size, memory, and execution limits before relying on this setup in production.
 
 ---
 
@@ -1031,16 +1047,16 @@ CrimeScope does not currently include an automated test suite. The following man
 |---|-----------|-------------|-----------------|--------|
 | 1 | App startup | `python app.py` | Server starts on port 8050, Overview page loads | Not tested |
 | 2 | Page navigation | Click each sidebar link | Correct page renders, sidebar active state updates, header titles change | Not tested |
-| 3 | Global filters | Select crime type, district, year range | All visible charts update to reflect filtered data | Not tested |
+| 3 | Global filters | Select crime type, district, year range | Overview, Trends, Map, and Districts visualizations update | Not tested |
 | 4 | Filter reset | Click "Reset All Filters" | Filters return to defaults, charts show full dataset | Not tested |
 | 5 | Overview KPIs | Load Overview page | 4 KPI cards show numeric values (not N/A) | Not tested |
 | 6 | Map modes | Toggle Heatmap / Points / District Bubbles | Map re-renders with correct visualization mode | Not tested |
 | 7 | Trends multi-select | Select 2–4 crime categories | Multi-line chart shows one line per selected category | Not tested |
 | 8 | ML prediction | Set inputs, click "Estimate Crime Category" | Prediction card shows predicted category + 5 probability bars | Not tested |
 | 9 | Model comparison | Switch confusion matrix dropdown | Confusion matrix heatmap updates for selected model | Not tested |
-| 10 | CSV download | Click "Download Filtered Data as CSV" | Browser downloads `crimescope_filtered_data.csv` | Not tested |
+| 10 | CSV download | Click "Download Filtered Data as CSV" | Browser downloads `crimescope_filtered_crimes.csv` | Not tested |
 | 11 | Chicago clock | Observe clock widget | Time updates every second in CT format | Not tested |
-| 12 | Responsive sidebar | Resize browser to ≤ 992 px | Sidebar collapses to icon-only mode | Not tested |
+| 12 | Responsive layout | Inspect pages at desktop and narrow viewport widths | Components remain usable without unintended overflow | Not tested |
 | 13 | Empty filter result | Filter to impossible combination | Charts show empty state gracefully (no crash) | Not tested |
 
 ### Recommended Testing Improvements
@@ -1065,14 +1081,14 @@ CrimeScope does not currently include an automated test suite. The following man
    - **Police District:** District 11
    - **Community Area:** Area 25
 3. Click **"Estimate Crime Category"**.
-4. Expected output: A prediction card showing the most likely crime category (e.g., `BATTERY`) with top-5 probabilities displayed as horizontal bars.
+4. The prediction callback updates the card from the selected stored model and renders up to five class probabilities. The result depends on the model artifact and inputs; no fixed category/output is expected or asserted by this documentation.
 
 ### Example 2: Exploring Crime Trends
 
 1. Open the **Trends** page.
-2. In the multi-select dropdown, select `THEFT`, `BATTERY`, and `NARCOTICS`.
+2. In the multi-select dropdown, select categories such as `THEFT`, `BATTERY`, and `NARCOTICS` if they are available in the loaded data.
 3. The multi-line chart will show monthly incident trends for each selected category over the dataset's time range.
-4. The seasonality chart below shows that summer months typically have higher crime volumes.
+4. The monthly chart below shows counts for Jan–Dec across all selected years; it does not itself establish a seasonal trend.
 
 ### Example 3: Using Global Filters
 
@@ -1080,7 +1096,7 @@ CrimeScope does not currently include an automated test suite. The following man
 2. Select **Crime Categories:** `THEFT`, `ROBBERY`.
 3. Set **Year Range:** 2022–2024.
 4. Set **Arrest Made:** Arrest Made (Yes).
-5. Close the panel. All charts on every page now reflect only THEFT and ROBBERY incidents from 2022–2024 where an arrest was made.
+5. Close the panel. The Overview, Trends, Map, and Districts pages should reflect only matching rows. The Prediction and Model Comparison pages are not filtered by this panel.
 
 ---
 
@@ -1089,15 +1105,14 @@ CrimeScope does not currently include an automated test suite. The following man
 | # | Error / Symptom | Likely Cause | Resolution |
 |---|----------------|-------------|------------|
 | 1 | `ModuleNotFoundError: No module named 'dash'` | Dependencies not installed | Run `pip install -r requirements.txt` in the active virtual environment |
-| 2 | `FileNotFoundError: data/raw/crimes.csv` | Dataset not downloaded | Run `python scripts/download_data.py` or `python scripts/make_sample_data.py` |
-| 3 | `OSError: Address already in use` (port 8050) | Another process on port 8050 | Kill the other process or change port: `app.run(port=8051)` |
+| 2 | Data is unexpectedly synthetic or appears incomplete | Git LFS objects are not present, or a data download failed and used the script's sample fallback | Run `git lfs pull`; check `data/raw/crimes.csv` and the download script's console output. Synthetic sample generation is not an empirical-data substitute. |
+| 3 | `OSError: Address already in use` (port 8050) | Another process is listening on port 8050 | Stop the process holding the port, or change the hard-coded `port` in `app.py` and run the app again. |
 | 4 | Charts show empty / "No data" | Filters too restrictive | Click "Reset All Filters" in the offcanvas panel |
-| 5 | `ImportError: cannot import name 'feature_importances'` | `ml.py` references undefined variable during training | This is a known code issue — ensure model files exist (run `python src/ml.py` before launch, or use pre-trained models) |
-| 6 | Map tiles don't load | No internet connection | The `carto-darkmatter` basemap requires an internet connection for tile loading |
+| 5 | `NameError: name 'feature_importances' is not defined` | Fresh/forced training reaches an undefined variable in `src/ml.py` | Training is currently broken. Use the committed model/metrics artifacts if retrieved and compatible; do not run `python src/ml.py` expecting it to repair missing artifacts. |
+| 6 | Map tiles, fonts, or icons don't load | Browser cannot reach the external tile/font/icon hosts | Check browser network access. Analytics may still be served, but maps and styling assets may be incomplete. |
 | 7 | `PermissionError` writing to `data/` or `models/` | Insufficient file permissions | Ensure the current user has write access to the project directory |
-| 8 | Slow initial load | First run — preprocessing + model training | Subsequent launches load cached Parquet and `.joblib` files (sub-second) |
-| 9 | `pytz` not found | Missing transitive dependency | `pip install pytz` (usually installed with Dash) |
-| 10 | Vercel deployment fails | Missing data/model files | Generate `crimes_cleaned.parquet` and model `.joblib` files before deploying; ensure they're not gitignored in the deployment bundle |
+| 8 | App startup fails while loading a model | Missing LFS artifact, incompatible/corrupt joblib file, or training fallback invoked | Confirm all `models/*.joblib` files are actual LFS objects. Review the traceback; training fallback is affected by the undefined `feature_importances` bug. |
+| 9 | Vercel deployment does not start or reports missing files | Deployment has not been validated; build may not have the LFS assets or suitable runtime resources | Check Vercel build logs, verify `data/processed/crimes_cleaned.parquet` and model files are included, and confirm runtime/memory limits. `data/raw/` is excluded by `.vercelignore`. |
 
 ---
 
@@ -1105,46 +1120,54 @@ CrimeScope does not currently include an automated test suite. The following man
 
 ### Performance Characteristics
 
-| Operation | Typical Time | Notes |
-|-----------|-------------|-------|
-| Initial data load (Parquet) | < 1 second | Cached in memory after first load |
-| Initial data preprocessing (CSV → Parquet) | 5–15 seconds | Only on first run |
-| ML model training (all 3 models) | 2–5 seconds | On 60,000 sampled rows, CPU only |
-| ML inference (single prediction) | < 100 ms | Loads `.joblib` pipeline from disk |
-| Dashboard callback (chart render) | 100–500 ms | Depends on dataset size and chart complexity |
-| Map rendering (heatmap mode) | 500 ms–2 s | Samples up to 8,000 points |
+No measured latency, memory, throughput, or scalability benchmark is included in the repository. The app loads its processed DataFrame into process memory; chart callbacks filter that DataFrame; the map limits point/density modes to at most 20,000 sampled rows; model training samples at most 60,000 rows. These are implementation details, not performance guarantees.
 
 ### Current Limitations
 
-- **In-memory dataset:** The entire dataset is loaded into RAM. Datasets larger than ~1M rows may cause memory issues on low-RAM machines.
+- **In-memory dataset:** The entire processed dataset is loaded into RAM. Resource requirements depend on the actual snapshot and runtime.
 - **No database:** Data is stored as flat files (CSV/Parquet). There is no database for persistence, querying, or multi-user access.
 - **No authentication:** The dashboard is publicly accessible with no login or access control.
-- **No real-time data:** The dataset is static — refreshing requires re-running `download_data.py`.
+- **No automatic data refresh:** The stored dataset is static until a developer runs the download/preprocessing scripts or replaces the committed artifacts.
 - **Single-threaded Dash:** In development mode, Dash runs on a single thread. Use Gunicorn with multiple workers for production.
-- **Mapbox tile dependency:** Maps require an internet connection for base tile loading.
+- **External browser assets:** Google Fonts, Bootstrap Icons, and CARTO map tiles are requested from external hosts by the browser.
 - **ML model simplicity:** The models use only spatio-temporal features. Incorporating additional features (location description, historical trends, socioeconomic data) would improve accuracy.
 
 ---
 
 ## Privacy, Data Handling, and Responsible Use
 
-### Data Collected
+### Data handled by the application
 
-CrimeScope processes **publicly available** crime incident data published by the City of Chicago. The application does **not** collect any user data — there are no accounts, cookies (beyond Dash defaults), or analytics trackers.
+The project has no account system, database, or explicit analytics integration. It reads crime records from the local dataset and sends rendered figures/data to the browser through Dash; CSV export sends the currently filtered processed rows as a download. The source schema includes incident identifiers and location fields, so review the exact dataset and export contents before making a public deployment. This documentation does not establish what hosting-provider access logs may retain.
 
 ### Data Privacy
 
-- **Geographic anonymization:** The Chicago Police Department anonymizes crime locations to the block level before publication.
-- **No personal information:** The dataset does not contain victim, witness, or suspect personal information.
-- **Local processing:** All data processing and ML inference happen locally on the user's machine (or the deployment server). No data is sent to external services during dashboard operation.
+- **Source terms and precision:** Consult the Chicago Data Portal entry and terms for authoritative information about source fields, location precision, and permitted use.
+- **Network services:** The optional data downloader requests public records from Socrata. Browser clients may also contact the configured font, icon, and map-tile hosts. A hosted deployment may have its own request logging and retention policies.
+- **No user-authored records:** No feature in this code stores user accounts or user-submitted incident records in a database.
 
 ### Responsible Use
 
 > **⚠️ Important:** Crime data reflects historical reporting patterns and police activity. It does not represent the true distribution of all criminal activity. Over-policing of certain areas (e.g., for narcotics) can create feedback loops that inflate incident counts in those areas.
 
 - Do not use CrimeScope predictions to target specific neighborhoods, demographics, or individuals.
-- The ML predictions are statistical estimates — they represent historical pattern correlations, not causal relationships or certainties.
+- The ML model estimates a historical category label from a small set of time/location features; it is not a validated forecast, risk score, or causal explanation.
 - Always interpret crime data in the context of the social, economic, and policing factors that shape reporting.
+
+---
+
+## Authentication and Security
+
+The repository does not implement user registration, login, role-based authorization, or a separate protected API. The dashboard should therefore be treated as publicly accessible when deployed, unless access controls are added at the hosting or network layer.
+
+Security notes for maintainers:
+
+- Do not commit secrets. No application environment variables or API credentials are currently required or read by the source.
+- Validate and constrain any new callback inputs on the server; browser controls alone are not a security boundary.
+- Review which source fields are included in the processed dataset and CSV export before exposing the app to a broader audience.
+- Use HTTPS and platform-managed access controls if deploying beyond localhost; these are not configured by this repository.
+- Keep Python dependencies and the hosting runtime maintained. No automated dependency or security scan is configured.
+- Review `.vercelignore` and deployment contents before shipping. It excludes `data/raw/`, but deployment behavior and artifact inclusion have not been tested.
 
 ---
 
@@ -1156,7 +1179,7 @@ CrimeScope processes **publicly available** crime incident data published by the
 2. **Clone** your fork locally:
    ```bash
    git clone <your-fork-url>
-   cd "dav project"
+   cd CrimeScope
    ```
 3. **Create a feature branch:**
    ```bash
@@ -1167,7 +1190,7 @@ CrimeScope processes **publicly available** crime incident data published by the
    - PEP 8 for Python.
    - 4-space indentation.
    - Descriptive function names with docstrings.
-   - Use `CS_COLORS` and `apply_cs_layout()` for any new charts.
+   - Reuse the color constants in `src/theme.py` and `apply_dark_theme()` in `src/charts.py` for new charts.
 6. **Test your changes** manually using the test cases in the [Testing](#testing-and-quality-assurance) section.
 7. **Commit with a descriptive message:**
    ```bash
@@ -1183,7 +1206,7 @@ CrimeScope processes **publicly available** crime incident data published by the
 ### Pull Request Checklist
 
 - [ ] Code follows existing style and conventions.
-- [ ] New charts use `apply_cs_layout()` for consistent theming.
+- [ ] New charts use the shared colors and `apply_dark_theme()` for consistent styling.
 - [ ] New pages are added to `NAV_ITEMS` in `layout.py` and the routing callback in `callbacks.py`.
 - [ ] No API keys, passwords, or secrets are committed.
 - [ ] README is updated if new features, dependencies, or configuration are added.
@@ -1210,10 +1233,10 @@ This section provides a chronological guide for rebuilding CrimeScope from zero.
 1. **Define the problem:** Build an interactive crime analytics dashboard for Chicago using public police data.
 2. **Requirements:**
    - Multi-page SPA with 7 analytical views.
-   - Global filters applied across all visualizations.
+   - Global filters on Overview, Trends, Map, and Districts visualizations.
    - Interactive geospatial map.
    - ML-powered crime category prediction.
-   - Dark-themed, responsive UI.
+   - Dark-themed UI; responsive behavior must be checked at target viewport sizes.
 3. **Technology selection:**
    - Python + Dash (web framework).
    - Plotly (charting).
@@ -1222,79 +1245,58 @@ This section provides a chronological guide for rebuilding CrimeScope from zero.
    - Dash Bootstrap Components (UI).
 4. **Architecture:** Single Python application with modular source files (`data_prep`, `layout`, `callbacks`, `charts`, `theme`, `ml`).
 
-### Phase 2: Environment Setup
+### Phase 2: Obtain the source and assets
+
+Start from the complete repository; a README alone is not sufficient to recreate all source code, data, or serialized model artifacts. Install Git LFS, clone the project, and check out the LFS objects:
 
 ```bash
-mkdir crimescope && cd crimescope
+git lfs install
+git clone https://github.com/Joshi4git-hub/CrimeScope.git
+cd CrimeScope
+git lfs pull
+```
+
+The repository includes `requirements.txt` but no lockfile. Exact environment reproduction therefore requires preserving the resolved package versions separately.
+
+### Phase 3: Set up the runtime
+
+Create and activate a virtual environment as described in [Installation](#installation-and-setup-from-zero-to-running), then install the declared dependencies:
+
+```bash
 python -m venv venv
-# Activate venv
-pip install dash dash-bootstrap-components pandas numpy plotly scikit-learn joblib pyarrow fastparquet gunicorn requests
-pip freeze > requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-Create the folder structure:
+Activation differs by shell: in Windows PowerShell use `.\venv\Scripts\Activate.ps1`; in macOS/Linux use `source venv/bin/activate`.
+
+### Phase 4: Prepare the data
+
+1. Prefer the committed `data/processed/crimes_cleaned.parquet` for the same input snapshot.
+2. To obtain a different public-data snapshot, run `python scripts/download_data.py`; check whether it downloaded public records or used its synthetic fallback.
+3. To create synthetic development data deliberately, run `python scripts/make_sample_data.py`.
+4. Run `python src/data_prep.py` to preprocess the current raw CSV. This overwrites the processed Parquet, which is tracked by Git LFS in this repository.
+
+### Phase 5: Use or rebuild model artifacts
+
+The checked-in `.joblib` model and metrics files are the available inference artifacts. Exact model recreation depends on the matching data snapshot and dependency versions. Fresh/forced training currently fails because `feature_importances` is undefined; fix and test this defect before attempting to regenerate the artifacts. The benchmark table alone is not a reproducible model-training procedure.
+
+### Phase 6: Launch and verify
+
+From the repository root, run:
 
 ```bash
-mkdir -p src scripts assets data/raw data/processed models api
+python app.py
 ```
 
-Create `.gitignore`:
+Open `http://127.0.0.1:8050`. Manually check page routing, global filters, map modes, CSV download, and model inference. The repository has no automated test suite, and these checks are marked **Not tested** in the table above unless someone executes them in the target environment.
 
-```
-__pycache__/
-*.pyc
-.env
-.venv/
-venv/
-data/raw/
-data/processed/
-models/
-!models/.gitkeep
-```
+### Phase 7: Optional deployment
 
-### Phase 3: Core Implementation
-
-**Implementation order:**
-
-1. **`src/theme.py`** — Define `CS_COLORS` palette and `apply_cs_layout()` function.
-2. **`scripts/make_sample_data.py`** — Create synthetic data generator for development.
-3. **`src/data_prep.py`** — Implement the full cleaning pipeline: date parsing, feature derivation, duplicate removal, coordinate filtering, type casting, crime category grouping, Parquet output, and in-memory caching.
-4. **`src/charts.py`** — Implement chart factory functions one by one: trend line, donut, heatmap, multi-line, seasonality, hourly profile, map (3 modes), community areas, district bar, stacked CA, confusion matrix, feature importance. Each function takes a filtered DataFrame and returns a styled Plotly figure.
-5. **`src/layout.py`** — Build the sidebar, header, offcanvas filter panel, and all 7 page layout functions. Use `dbc.Row`/`dbc.Col` for responsive grid layouts. Wire up `dcc.Graph`, `dcc.Dropdown`, `dcc.Slider`, `dcc.Loading` components with unique IDs.
-6. **`src/ml.py`** — Implement the ML pipeline: `ColumnTransformer` preprocessor, three model configurations, training loop with `Pipeline`, evaluation metrics, `.joblib` persistence, and `predict_crime_category()` inference function.
-7. **`src/callbacks.py`** — Implement `register_callbacks(app)` with all 13 callbacks: routing, clock, filter toggle, filter store, filter reset, overview charts, trends options/charts, map charts, districts charts, model comparison, prediction, sync time, CSV download.
-8. **`app.py`** — Initialize Dash with external stylesheets, load data, build top-level layout, register callbacks, and add `__main__` entry point.
-
-### Phase 4: Data and Integrations
-
-1. **`scripts/download_data.py`** — Implement SODA API download function for Chicago Data Portal.
-2. Run `python scripts/download_data.py` to fetch real data, or `python scripts/make_sample_data.py` for synthetic.
-3. Run `python src/data_prep.py` to preprocess and cache.
-4. Run `python src/ml.py` to train and save models.
-
-### Phase 5: Frontend Polish
-
-1. **`assets/custom.css`** — Write the complete dark-theme stylesheet: CSS variables, sidebar, navigation, header, cards, KPIs, buttons, tables, banners, dropdown/slider/offcanvas overrides, scrollbar, responsive breakpoints.
-2. **`assets/dropdown_scroll.js`** — Add the mutation observer for scroll fix.
-
-### Phase 6: Integration and Testing
-
-1. Run `python app.py` and test all 7 pages.
-2. Test global filters across pages.
-3. Test ML prediction with various inputs.
-4. Test responsive layout at different viewport widths.
-5. Test CSV download.
-
-### Phase 7: Deployment
-
-1. Create `api/index.py` — Vercel entry point.
-2. Create `vercel.json` — routing and build config.
-3. Create `.vercelignore` — deployment excludes.
-4. Deploy with `vercel`.
+`api/index.py`, `vercel.json`, and `.vercelignore` provide a Vercel deployment configuration. Follow the [Vercel deployment](#vercel-deployment) section only after confirming that the platform receives the required Git LFS artifacts and that the application fits its runtime limits. The deployment has not been verified.
 
 ### Common Pitfalls
 
-- **Circular imports:** `layout.py` imports from `data_prep.py`; `callbacks.py` imports from `layout.py`, `charts.py`, and `ml.py`. Ensure `app.py` imports are ordered correctly.
+- **Import path:** `app.py` adds the repository root to `sys.path`; run it from the root or preserve that path setup when packaging.
 - **Callback IDs:** Every `dcc.Graph`, `dcc.Dropdown`, `html.Div` that is referenced in a callback must have a matching `id` in the layout.
 - **`suppress_callback_exceptions=True`:** Required because page components don't exist in the DOM until their page is routed to.
 - **Model file path resolution:** Use `os.path.dirname(os.path.abspath(__file__))` to build absolute paths from each module's location.
@@ -1319,9 +1321,8 @@ models/
 
 ### Known Incomplete Functionality
 
-- The `.gitignore` includes `!models/.gitkeep` but no `.gitkeep` file exists in `models/`.
-- `feature_importances` variable in `ml.py` is referenced at line 123 but its assignment depends on the model type (only valid for tree-based models). This may cause a `NameError` during fresh model training — *needs verification*.
-- Development utility scripts (`inspect_dom.py`, `take_screenshots.py`, etc.) may have external dependencies (e.g., Selenium) not listed in `requirements.txt`.
+- `src/ml.py` references `feature_importances` without defining it in the training loop. Fresh/forced training raises `NameError`; this is a confirmed source-level defect, not a speculative issue.
+- `scripts/take_screenshots.py` imports Playwright, which is not listed in `requirements.txt`; browser automation is optional and requires separate setup.
 
 ---
 
@@ -1351,7 +1352,7 @@ models/
 | Pandas | BSD-3-Clause | [pandas.pydata.org](https://pandas.pydata.org) |
 | Bootstrap Icons | MIT | [icons.getbootstrap.com](https://icons.getbootstrap.com) |
 | Google Fonts (Inter) | OFL | [fonts.google.com/specimen/Inter](https://fonts.google.com/specimen/Inter) |
-| Mapbox / CARTO | Various | [carto.com](https://carto.com) (basemap tiles) |
+| CARTO | See provider terms | [carto.com](https://carto.com) (map tiles) |
 
 ---
 
@@ -1364,7 +1365,7 @@ A: CrimeScope is an interactive analytics dashboard that visualizes Chicago crim
 A: Data analysts, students, researchers, journalists, and anyone interested in exploring Chicago crime patterns. It also serves as a portfolio project demonstrating full-stack data science.
 
 **Q: What software do I need?**
-A: Python 3.10+, pip, and Git. All other dependencies are installed via `pip install -r requirements.txt`.
+A: Python 3.10+ as this guide's setup baseline, Git, and Git LFS to retrieve the tracked data/model files. Install Python dependencies with `python -m pip install -r requirements.txt`.
 
 **Q: How do I run it locally?**
 A: After installing dependencies, run `python app.py` and open `http://127.0.0.1:8050` in your browser.
@@ -1373,22 +1374,22 @@ A: After installing dependencies, run `python app.py` and open `http://127.0.0.1
 A: No. CrimeScope uses flat files (CSV/Parquet) and in-memory caching. No database setup is needed.
 
 **Q: Do I need any API keys?**
-A: No. The Chicago Data Portal SODA API is free and does not require authentication for basic queries. The Mapbox `carto-darkmatter` basemap is free and keyless.
+A: No API key is configured in this source. The downloader makes an unauthenticated request to the Chicago Data Portal; map tiles and fonts/icons are loaded from external hosts.
 
 **Q: Can I run it offline?**
-A: Partially. Once the dataset is downloaded, all processing and ML work offline. However, the interactive map requires an internet connection for base tile loading.
+A: The application can read already available local data and model files, but external fonts/icons and map tiles may not load. Downloading new data requires network access.
 
 **Q: How do I troubleshoot "No module found" errors?**
-A: Ensure your virtual environment is activated (`source venv/bin/activate` or `.\venv\Scripts\Activate`) and run `pip install -r requirements.txt`.
+A: Ensure your virtual environment is active (`source venv/bin/activate` or `.\venv\Scripts\Activate.ps1`) and run `python -m pip install -r requirements.txt`.
 
 **Q: What machine learning models are used?**
 A: Random Forest, Logistic Regression, and Decision Tree classifiers from scikit-learn, trained on spatio-temporal features to predict crime categories.
 
 **Q: How accurate are the predictions?**
-A: The Random Forest model achieves 80.22% accuracy with a Weighted F1-Score of 80.22%. These are moderate results expected from the inherent difficulty of predicting crime categories from location and time alone.
+A: See the benchmark table above for the project reference values. The training source hardcodes those displayed metrics and the current training path fails before independently reproducing them. They should not be interpreted as a fresh evaluation on the checked-in dataset.
 
 **Q: Can I add my own data?**
-A: Yes. Replace `data/raw/crimes.csv` with any CSV file that has matching column names (Date, Primary Type, District, Latitude, Longitude, etc.) and re-run preprocessing.
+A: A CSV can be used if it includes `Date`, `Primary Type`, `District`, `Latitude`, and `Longitude` (after lowercase/underscore normalization) and follows the expected source schema. Optional `Community Area`, `Arrest`, and `Domestic` columns have defaults. Back up the tracked snapshot before replacing it; rerun `python src/data_prep.py` to regenerate the processed dataset.
 
 **Q: How do I contribute?**
 A: Fork the repository, create a feature branch, make changes, and submit a pull request. See the [Contribution Guidelines](#contribution-guidelines) section.
@@ -1397,9 +1398,6 @@ A: Fork the repository, create a feature branch, make changes, and submit a pull
 
 <div align="center">
 
-**Built with 🔥 by the CrimeScope Team**
-
-*Powered by Python • Dash • Plotly • scikit-learn*
+*Built with Python | Dash | Plotly | scikit-learn*
 
 </div>
-]]>
